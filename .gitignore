@@ -1,0 +1,7 @@
+# PyCharm project files
+.idea/
+.vscode/*
+env/
+venv/
+/test.py
+test.py
