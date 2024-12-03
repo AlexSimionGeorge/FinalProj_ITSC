@@ -1,5 +1,18 @@
 import tkinter as tk
 
+
+
+###Global varaibles###
+
+reg = {f"x{i}": 0 for i in range(32)}
+mem = {(line, column): 0 for line in range(37) for column in range(10)}
+
+###register directory + memory directory###
+
+
+
+
+
 # name holders
 abi_names = [
     "zero",  # x0
