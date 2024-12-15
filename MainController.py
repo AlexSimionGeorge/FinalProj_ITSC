@@ -1,56 +1,22 @@
 import tkinter as tk
 
-
-
-###Global varaibles###
-
-reg = {f"x{i}": 0 for i in range(32)}
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 ###register directory + memory directory###
-
-
-
-
-
-# name holders
+reg = {f"x{i}": 0 for i in range(32)}
 abi_names = [
-    "zero",  # x0
-    "ra",    # x1
-    "sp",    # x2
-    "gp",    # x3
-    "tp",    # x4
-    "t0",    # x5
-    "t1",    # x6
-    "t2",    # x7
-    "s0/fp", # x8
-    "s1",    # x9
-    "a0",    # x10
-    "a1",    # x11
-    "a2",    # x12
-    "a3",    # x13
-    "a4",    # x14
-    "a5",    # x15
-    "a6",    # x16
-    "a7",    # x17
-    "s2",    # x18
-    "s3",    # x19
-    "s4",    # x20
-    "s5",    # x21
-    "s6",    # x22
-    "s7",    # x23
-    "s8",    # x24
-    "s9",    # x25
-    "s10",   # x26
-    "s11",   # x27
-    "t3",    # x28
-    "t4",    # x29
-    "t5",    # x30
-    "t6"     # x31
+    "zero",
+    "ra",
+    "sp",
+    "gp",
+    "tp",
+    "t0","t1","t2",
+    "s0/fp",
+    "s1",
+    "a0","a1","a2","a3","a4","a5","a6","a7",
+    "s2","s3","s4","s5","s6","s7","s8","s9","s10","s11",
+    "t3", "t4", "t5", "t6"
 ]
-
-x_registers = [0] * 32
-memory = [[0] * 10 for _ in range(37)]
 
 def main():
     def set_row_column(memory_displayed_list, row, col, val):
@@ -67,7 +33,7 @@ def main():
         #CALL BACK with data
         # execute call here set the regs and all values
 
-        # set_row_column(memory_displayed_list, line_index, 0, 0)
+        set_row_column(memory_displayed_list, 0, 0, line_index)
         # set_register(registers_displayed_list, line_index, 9)
 
         code_displayed_list[line_index].config(background="red")
@@ -93,7 +59,11 @@ def main():
                 execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list)
                 current_line += 1
 
+
+
         code = input_code.get(1.0, tk.END)
+        code = "\n".join(line for line in code.splitlines() if line.strip())
+        # TODO: CALL ASSEMBLER
         lines = code.splitlines()
 
         ############CODE SECTION############
@@ -122,24 +92,24 @@ def main():
         # Populate the registers section
         registers_displayed_list = []
         for i, name in enumerate(abi_names):
-            label = tk.Label(register_scrollable_frame, text=name + ": " + str(x_registers[i]), background="white",
+            label = tk.Label(register_scrollable_frame, text=name + ": " + str(list(reg.values())[i]), background="white",
                              width=25, anchor="w")
             label.grid(row=i, column=0, padx=5, pady=1)
             registers_displayed_list.append(label)
 
         ############MEMORY SECTION############
-        def create_memory_table(scrollable_frame, mem):
+        def create_memory_table(scrollable_frame, mem): # TODO: change mem variable to disct touples var
             mem_disp_list = []
-            for row in range(len(mem)):  # 100 rows
-                memory_address = row * len(mem[0])
+            for row in range(37):  # 100 rows
+                memory_address = row * 10
                 row_widgets = []
 
                 # First column is memory address
                 memory_address_label = tk.Label(scrollable_frame, text=f"{memory_address:5d}", width=7, anchor="w")
                 memory_address_label.grid(row=row, column=0, padx=5, pady=1)
                 # Create 10 Entry widgets for the memory values
-                for col in range(len(mem[0])):
-                    value = mem[row][col]
+                for col in range(10):
+                    value = mem[(row, col)]
                     memory_cell = tk.Entry(scrollable_frame, width=7, justify="right")
                     memory_cell.insert(tk.END, f"{value:5d}")
                     memory_cell.grid(row=row, column=col + 1, padx=5, pady=1)
@@ -157,14 +127,13 @@ def main():
         memory_zone_title = tk.Label(master, text="Memory", anchor="center")
         memory_zone_title.grid(row=0, column=2, columnspan=2, padx=5, pady=5)
         # Populate the memory section with Entry widgets for a table
-        memory_displayed_list = create_memory_table(memory_scrollable_frame, memory)
+        memory_displayed_list = create_memory_table(memory_scrollable_frame, mem)
 
 
         # Step button
         step_button = tk.Button(master, text="Step", command=step_through_lines)
         step_button.grid(row=len(lines) + 2, column=0, pady=10)
         current_line = 0
-
 
 
     def swap_to_compile_view():
@@ -175,6 +144,8 @@ def main():
     def input_view():
         input_code.pack()
         run_button.pack()
+
+
 
     # Main window setup
     master = tk.Tk()
