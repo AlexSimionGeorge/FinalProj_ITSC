@@ -1,8 +1,11 @@
 import re
 from idlelib.debugobj_r import remote_object_tree_item
+from idlelib.editor import keynames
 
 abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
+def is_empty_string(s):
+    return not any(c.isprintable() and not c.isspace() for c in s)
 def hex2dec(hex_string):
     try:
         decimal_value = int(hex_string, 16)
@@ -22,6 +25,7 @@ def bin2dec(binary_str):
         print("n are 32 biti")
 
     decimal_value = int(binary_str, 2)
+
     return decimal_value
 
 def _3112immediate_117destination_register_62opcode_10alignment(params, opcode):
@@ -55,7 +59,7 @@ def _3120immediate_1915source_register_1412function_117destination_register_62op
 
     _62opcode = opcode
     _10alignment = "11"
-
+    print("imm",_3120immediate)
     return bin2dec(_3120immediate[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
 def _3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, function, opcode, _3127opcode, _2625control_bits):
@@ -96,7 +100,6 @@ def _3120offset_1915source_register_1412function_117destination_register_62opcod
     offset = params[1]
     if offset in labels:
         return 1/0 # TODO :)
-
     _3120offset = dec2bin_str(hex2dec(offset), 31, 20)
 
     _1915source_register = dec2bin_str(abi_names[params[2]], 19, 15)
@@ -124,8 +127,9 @@ def _3125offset_2420source_register_1915source_register_1412function_117offset_6
 def _jal(labels, params):
     offset = params[1]
     if offset in labels:
-        return 1/0 # TODO :)
-    offset_in_bin = dec2bin_str(hex2dec(offset), 20, 0)
+        offset_in_bin = dec2bin_str(labels.index(offset), 20, 0)
+    else:
+        offset_in_bin = dec2bin_str(hex2dec(offset), 20, 0)
 
     rd_index = abi_names[params[0]]
     rd = dec2bin_str(rd_index, 11, 7)
@@ -135,8 +139,9 @@ def _jal(labels, params):
 def _jalr(labels, params):
     offset = params[2]
     if offset in labels:
-        return 1/0 # TODO :)
-    offset_in_bin = dec2bin_str(hex2dec(offset), 31, 20)
+        offset_in_bin = dec2bin_str(labels.index(offset), 31, 20)
+    else:
+        offset_in_bin = dec2bin_str(hex2dec(offset), 31, 20)
 
     rs = dec2bin_str(abi_names[params[1]], 19, 15)
     rd = dec2bin_str(abi_names[params[0]], 11, 7)
@@ -146,8 +151,9 @@ def _jalr(labels, params):
 def b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function, _62opcode):
     offset = params[2]
     if offset in labels:
-        return 1/0 # TODO :)
-    offset_in_bin = dec2bin_str(hex2dec(offset), 12, 0)
+        offset_in_bin = dec2bin_str(labels.index(offset), 12, 0)
+    else:
+        offset_in_bin = dec2bin_str(hex2dec(offset), 12, 0)
 
     rs2 = dec2bin_str(abi_names[params[1]], 24, 20)
     rs1 = dec2bin_str(abi_names[params[0]], 19, 15)
@@ -235,24 +241,58 @@ def assemble_code(code, memory):
 
     for line in code.splitlines():
         relevant = line.split(";", 1)[0] if ";" in line else line
+        if is_empty_string(relevant):
+            continue
+
         label, operation = extract_label_and_operation(relevant)
 
         operation = operation.lstrip(" \t\n")
         words =   re.split(r'[ ,()]+', operation)
 
-        instruction = words[0]
+        instruction =  words[0]
         params = words[1:]
 
         labels.append(label)
         parameters.append(params)
         instructions.append(instruction)
 
+    not_found_instr = []
+
     for i, instruction in enumerate(instructions):
         try:
             reduced_to_number = functions[instruction](labels, parameters[i])
             print(reduced_to_number)
         except KeyError:
-            print(f"label:[{labels[i]}]", end="")
-            print(f"instruction:[{instruction}]", end="")
-            print( f"params:[{parameters[i]}]")
+            # print(f"label:[{labels[i]}]", end="")
+            # print(f"instruction:[{instruction}]", end="")
+            # print( f"params:[{parameters[i]}]")
+            not_found_instr.append(instruction)
 
+
+    print("instructions not founded/erroed:",not_found_instr)
+
+
+# print(functions["beq"]([], ["t1", "t2", "0x10"]))
+mock_code = """
+    .data
+num1:   .word 0x5              ; First number (5)
+num2:   .word 0x10             ; Second number (10)
+result: .word 0x0              ; To store the result
+    .text
+    .globl _start
+_start: ; Load num1 into register t0
+    la t0, num1              ; Load address of num1 into t0 #la
+    lw t1, 0x0(t0)             ; Load value of num1 into t1 ; Load num2 into register t2
+    la t0, num2              ; Load address of num2 into t0
+    lw t2, 0x0(t0)             ; Load value of num2 into t2 ; Add t1 and t2, store the result in t3
+    add t3, t1, t2           ; t3 = t1 + t2 ; Store the result in memory (result)
+    la t0, result            ; Load address of result into t0
+    sw t3, 0x0(t0)             ; Store the value of t3 into result ; Example loop: decrement t3 until 0
+loop:
+    beq t3, a0, end          ; If t3 == 0, exit loop
+    jal a0, loop             ; Jump back to loop
+end: ; Exit program
+    li a7, 0x10                ; Load ecall code for exit (10) into a7
+    ecall                    ; Make the system call
+"""
+assemble_code(mock_code, 8)
