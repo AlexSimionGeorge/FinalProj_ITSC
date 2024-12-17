@@ -1,5 +1,10 @@
 import tkinter as tk
 
+from Assembler import assemble_code
+
+
+current_line = 0
+initial_index_mapped_to_memory = []
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 ###register directory + memory directory###
@@ -27,16 +32,17 @@ def main():
         registers_displayed_list[x].config(text= abi_names[x] + ": " + str(val))
 
     def execute_line_i(line_index, code_displayed_list, registers_displayed_list, memory_displayed_list):
+        global initial_index_mapped_to_memory
         if line_index > 0:
-            code_displayed_list[line_index - 1].config(background="white")
+            code_displayed_list[initial_index_mapped_to_memory[line_index - 1]].config(background="white")
 
         #CALL BACK with data
         # execute call here set the regs and all values
 
-        set_row_column(memory_displayed_list, 0, 0, line_index)
+        # set_row_column(memory_displayed_list, 0, 0, line_index)
         # set_register(registers_displayed_list, line_index, 9)
 
-        code_displayed_list[line_index].config(background="red")
+        code_displayed_list[initial_index_mapped_to_memory[line_index]].config(background="red")
 
     def create_scrollable_frame(parent, width, height):
         canvas = tk.Canvas(parent, width=width, height=height)
@@ -54,17 +60,24 @@ def main():
 
     def compile_view():
         def step_through_lines():
-            nonlocal current_line
-            if current_line < len(lines):
+            global current_line
+            global initial_index_mapped_to_memory
+            if current_line < len(initial_index_mapped_to_memory):
                 execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list)
                 current_line += 1
 
-
-
         code = input_code.get(1.0, tk.END)
         code = "\n".join(line for line in code.splitlines() if line.strip())
-        # TODO: CALL ASSEMBLER
+
+        # call assembler
+        global mem
+        global initial_index_mapped_to_memory
+        mem, initial_index_mapped_to_memory = assemble_code(code, mem)
+
         lines = code.splitlines()
+
+
+
 
         ############CODE SECTION############
         code_wrapper = tk.Frame(master)
@@ -133,7 +146,7 @@ def main():
         # Step button
         step_button = tk.Button(master, text="Step", command=step_through_lines)
         step_button.grid(row=len(lines) + 2, column=0, pady=10)
-        current_line = 0
+
 
 
     def swap_to_compile_view():

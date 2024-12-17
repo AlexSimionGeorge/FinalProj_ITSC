@@ -238,8 +238,9 @@ def assemble_code(code, memory):
     labels = []
     parameters = []
     instructions = []
+    line_index =[]
 
-    for line in code.splitlines():
+    for i,line in enumerate(code.splitlines()):
         relevant = line.split(";", 1)[0] if ";" in line else line
         if is_empty_string(relevant):
             continue
@@ -255,13 +256,18 @@ def assemble_code(code, memory):
         labels.append(label)
         parameters.append(params)
         instructions.append(instruction)
+        line_index.append(i)
 
     not_found_instr = []
-
+    memory_address_to_add_instr_coded = 0
+    initial_index_mapped_to_memory = []
     for i, instruction in enumerate(instructions):
         try:
             reduced_to_number = functions[instruction](labels, parameters[i])
-            print(reduced_to_number)
+            memory[(memory_address_to_add_instr_coded // 10, memory_address_to_add_instr_coded % 10)] = reduced_to_number
+            memory_address_to_add_instr_coded += 1
+            initial_index_mapped_to_memory.append(line_index[i])
+
         except KeyError:
             # print(f"label:[{labels[i]}]", end="")
             # print(f"instruction:[{instruction}]", end="")
@@ -270,6 +276,11 @@ def assemble_code(code, memory):
 
 
     print("instructions not founded/erroed:",not_found_instr)
+    # for i in initial_index_mapped_to_memory:
+    #     print("index:", i , "line:", code.splitlines()[i])
+    print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
+
+    return memory, initial_index_mapped_to_memory
 
 
 # print(functions["beq"]([], ["t1", "t2", "0x10"]))
@@ -283,6 +294,12 @@ result: .word 0x0              ; To store the result
 _start: ; Load num1 into register t0
     la t0, num1              ; Load address of num1 into t0 #la
     lw t1, 0x0(t0)             ; Load value of num1 into t1 ; Load num2 into register t2
+    lw t1, 0x0(t0)
+    lw t1, 0x0(t0)
+    lw t1, 0x0(t0)
+    lw t1, 0x0(t0)
+    lw t1, 0x0(t0)
+    lw t1, 0x0(t0)
     la t0, num2              ; Load address of num2 into t0
     lw t2, 0x0(t0)             ; Load value of num2 into t2 ; Add t1 and t2, store the result in t3
     add t3, t1, t2           ; t3 = t1 + t2 ; Store the result in memory (result)
@@ -295,4 +312,3 @@ end: ; Exit program
     li a7, 0x10                ; Load ecall code for exit (10) into a7
     ecall                    ; Make the system call
 """
-assemble_code(mock_code, 8)
