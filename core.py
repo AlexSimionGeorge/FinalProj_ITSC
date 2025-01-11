@@ -2,6 +2,10 @@ reg = {f"R{i}": 0 for i in range(32)}
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 pc = 0
+gp = "R3" 
+
+
+reg[gp] = 0  
 
 def extend_sign(value, bits):
     sign_bit = 1 << (bits - 1)
@@ -11,124 +15,139 @@ def extend_sign(value, bits):
 ## add ##
 def add(rd, rs1, rs2):
     reg[rd] = reg[rs1] + reg[rs2]
+    reg[gp] += 4  
     print(f"{rd} = {reg[rd]}")
 
 
-##add immediate value##
+## add immediate value ##
 def addi(rd, rs1, immediate_value):
     reg[rd] = reg[rs1] + immediate_value
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-##sub reg to reg##
+## sub reg to reg ##
 def sub(rd, rs1, rs2):
     reg[rd] = reg[rs1] - reg[rs2]
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## Build 32-bit constants and uses the U-type format. LUI places the U-immediate value in the top 20 bits of the destination register rd, filling in the lowest 12 bits with zeros. ##
+## LUI: Load upper immediate ##
 def lui(rd, immediate_value):
     reg[rd] = immediate_value << 12
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## and ##
+## AND ##
 def and_op(rd, rs1, rs2):
     reg[rd] = reg[rs1] & reg[rs2]
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## or ##
+## OR ##
 def or_op(rd, rs1, rs2):
     reg[rd] = reg[rs1] | reg[rs2]
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## xor ##
+## XOR ##
 def xor_op(rd, rs1, rs2):
     reg[rd] = reg[rs1] ^ reg[rs2]
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## Place the value 1 in register rd if register rs1 is less than register rs2 when both are treated as unsigned numbers, else 0 is written to rd. ##
+## Set less than ##
 def slt(rd, rs1, rs2):
     reg[rd] = int(reg[rs1] < reg[rs2])
-    print(f"{rd} = {reg[rd]}")
- 
- 
-## load upped immediate ##
-def lui(rd, immediate_value): 
-    reg[rd] = immediate_value << 12
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## add upper immediate to program counter ##
+## AUIPC: Add upper immediate to program counter ##
 def auipc(rd, immediate_value):
     reg[rd] = pc + (immediate_value << 12)
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## set less than immediate ##
+## Set less than immediate ##
 def slti(rd, rs1, immediate_value):
     reg[rd] = int(reg[rs1] < extend_sign(immediate_value, 12))
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## set less than immediate but unsigned ##
+## Set less than immediate unsigned ##
 def sltiu(rd, rs1, immediate_value):
     reg[rd] = int((reg[rs1] & 0xFFFFFFFF) < (extend_sign(immediate_value, 12) & 0xFFFFFFFF))
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## xor with immediate value ##
+## XOR with immediate value ##
 def xori(rd, rs1, immediate_value):
     reg[rd] = reg[rs1] ^ extend_sign(immediate_value, 12)
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## shift left logical ##
+## Shift left logical ##
 def sll(rd, rs1, rs2):
     reg[rd] = reg[rs1] << reg[rs2]
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
-## shift right logical ## 
+
+## Shift right logical ## 
 def srl(rd, rs1, rs2):
     reg[rd] = (reg[rs1] >> reg[rs2]) & 0xFFFFFFFF
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
-## shift right arithmetic ##
+
+## Shift right arithmetic ##
 def sra(rd, rs1, rs2):
     reg[rd] = reg[rs1] >> reg[rs2]
     if reg[rs1] < 0:  # Sign-extend the shift
         reg[rd] |= (0xFFFFFFFF << (32 - reg[rs2]))
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
-    
-## set equal ##
+
+
+## Set equal ##
 def seq(rd, rs1, rs2):
     reg[rd] = 1 if reg[rs1] == reg[rs2] else 0
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
 
-## and immediate ##
-
+## AND immediate ##
 def andi(rd, rs1, immediate_value):
     reg[rd] = reg[rs1] & extend_sign(immediate_value, 12)
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
-    
-    
-## or immediate value ##
+
+
+## OR immediate ##
 def ori(rd, rs1, immediate_value):
     reg[rd] = reg[rs1] | extend_sign(immediate_value, 12)
+    reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
-    
-    
+
+
+## CSR Read and Write ##
 def csrrw(rd, csr, rs1):
     if rd != "R0":
         reg[rd] = mem.get(csr, 0)
         mem[csr] = reg[rs1]
+    reg[gp] += 4
     print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
-    
-    
+
 
 instruction_set = {
     "0110111": lui,
@@ -150,33 +169,26 @@ instruction_set = {
         "011": sltiu,
         "100": xori,
         "111": andi,
-        "110": ori,
-        "101": xori
-         
+        "110": ori
     },
-    "0110111": lui,
     "1110011": csrrw,
 }
 
 
-
-
-
 def use(instr, opers):
-        instr_set = {
-            "ADD": add,
-            "ADDi":addi,
-            "SUB":sub
-        }
-        
-        op = instr_set.get(instr)
-        if(op):
-            op(*opers)
-        else:
-            print("Unknown line ")
-
+    instr_set = {
+        "ADD": add,
+        "ADDi": addi,
+        "SUB": sub
+    }
+    
+    op = instr_set.get(instr)
+    if op:
+        op(*opers)
+    else:
+        print("Unknown instruction")
 
 
 reg["R0"] = 5
 reg["R1"] = 15
-use("xad", ["R3", "R0", "R1"])
+use("ADD", ["R2", "R0", "R1"])  # Example usage
