@@ -565,6 +565,4 @@ def use(instr, opers):
         print("Unknown instruction")
 
 
-reg["R0"] = 5
-reg["R1"] = 15
-use("ADD", ["R2", "R0", "R1"])  # Example usage
+

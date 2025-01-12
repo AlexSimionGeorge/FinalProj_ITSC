@@ -22,102 +22,17 @@ instruction_set = {
     },
     "0010011": {  
         "000": "addi",
+        "00000001": "slli",
         "010": "slti",
         "011": "sltiu",
         "100": "xori",
+        "00000101": "srli",
+        "01000101": "srai",
         "111": "andi",
         "110": "ori"
     },
     "1110011": "csrrw",
 }
-
-
-
-def unpack_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode(mem, address):
-    instruction = mem[address]
-
-
-    _10alignment = instruction & 0b11  
-    _62opcode = (instruction >> 2) & 0b111111  
-    _117offset = (instruction >> 8) & 0b111  
-    _1412function = (instruction >> 12) & 0b111  
-    _1915source_register = (instruction >> 15) & 0b11111  
-    _2420source_register = (instruction >> 20) & 0b11111  
-    _3125offset = (instruction >> 25) & 0b1111111  
-
-
-
-    offset_bin = f"{_3125offset:07b}{_117offset:05b}"
-    offset = int(offset_bin, 2)
-
-   
-    rs1 = f"x{_2420source_register}"  
-    rs2 = f"x{_1915source_register}" 
-    
-    
-    decoded_instruction = {
-        "offset": offset,
-        "source_register_1": rs1,
-        "source_register_2": rs2,
-        "function": f"{_1412function:03b}",
-        "opcode": f"{_62opcode:06b}",
-        "alignment": f"{_10alignment:02b}"
-    }
-
-    return decoded_instruction
-
-
-# exemplu adresa sub 1081282099 #
-
-def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
-    instruction = 1081282099
-
-    _10alignment = instruction & 0b11
-    _62opcode = (instruction >> 2) & 0b11111
-    _117destination_register = (instruction >> 7) & 0b11111
-    _1412function = (instruction >> 12) & 0b111
-    _1915source_register = (instruction >> 15) & 0b11111
-    _2420source_register = (instruction >> 20) & 0b11111
-    _2625control_bits = (instruction >> 25) & 0b1111111 
-    _3127opcode = (instruction >> 32) & 0b111 
-
-    rs1 = [k for k, v in abi_names.items() if v == _2420source_register][0]
-    rs2 = [k for k, v in abi_names.items() if v == _1915source_register][0]
-    rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
-
-    opcode_bin = f"{_62opcode:05b}" + f"{_10alignment:02b}"
-    print(opcode_bin)
-    instruction_name = None
-
-    if opcode_bin in instruction_set:
-        if isinstance(instruction_set[opcode_bin], dict):
-            func_bin = f"{_2625control_bits:07b}" + "_" + f"{_3127opcode:03b}"
-            if func_bin in instruction_set[opcode_bin]:
-                instruction_name = instruction_set[opcode_bin][func_bin]
-            else:
-                instruction_name = "Unknown function"
-        else:
-            instruction_name = instruction_set[opcode_bin]
-
-    if instruction_name is None:
-        instruction_name = "Unknown opcode"
-
-
-    decoded_instruction = {
-        "opcode": f"{_3127opcode:03b}",
-        "control_bits": f"{_2625control_bits:07b}",
-        "source_register_1": rs1,
-        "source_register_2": rs2,
-        "function": f"{_1412function:03b}",
-        "destination_register": rd,
-        "opcode": f"{_62opcode:05b}",
-        "alignment": f"{_10alignment:02b}",
-        "decoded_function": instruction_name
-    }
-
-    print(decoded_instruction)
-    
-    return decoded_instruction
 
 def remove_trailing_zeros_and_revert(binary_value):
     binary_str = bin(binary_value)[2:]
@@ -128,9 +43,60 @@ def remove_trailing_zeros_and_revert(binary_value):
     
     return int(reverted_binary, 2) if reverted_binary else 0
 
+
+##########################################
+## 3758097335 => lui t2, x7 ##
+## 1342178711 => auipc a1, 0xA ##
+##########################################
+
+
+def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, address):
+    instruction = 3758097335
+
+
+    _10alignment = instruction & 0b11  
+    _62opcode = (instruction >> 2) & 0b11111  
+    _1915destination_register = (instruction >> 7) & 0b1111111  
+    _3125immediate_value = (instruction >> 12) & 0b111111111111111111111  
+
+    rd = [k for k, v in abi_names.items() if v == _1915destination_register][0]
+
+    opcode_bin = f"{_62opcode:05b}" + f"{_10alignment:02b}"
+    print(opcode_bin)
+    instruction_name = None
+
+    value = remove_trailing_zeros_and_revert(_3125immediate_value)
+    
+    if opcode_bin in instruction_set:
+        instruction_name = instruction_set[opcode_bin]
+    else:
+        instruction_name = "Unknown function"
+
+    if instruction_name is None:
+        instruction_name = "Unknown opcode"
+
+
+    decoded_instruction = {
+        "immediate_value": value,
+        "destination_register": rd,
+        "opcode": f"{_62opcode:05b}",
+        "alignment": f"{_10alignment:02b}",
+        "decoded_function": instruction_name
+    }
+
+    print(decoded_instruction)
+    
+    return decoded_instruction
+
+
+
+
+##########################################
 # addi t2, t1, 0x5 => 2684552083 #
 # addi t2, t1, 0x27(39) => 3825402771 #
 # addi t2, t1, 0x335(821) => 2898461587 #
+##########################################
+
 
 
 def unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
@@ -182,4 +148,121 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
     return decoded_instruction
 
 
-unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
+##########################################
+
+# 1413907 => slli t1,a1,0x1
+# 19288979 => srli  t2,a2,0x12
+# 1077337619 => srai  t3,a3,0x3
+
+##########################################
+
+
+def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
+    instruction = 1077337619
+    
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    _117destination_register = (instruction >> 7) & 0b11111
+    _1412function = (instruction >> 12) & 0b111
+    _1915source_register = (instruction >> 15) & 0b11111
+    _2420shamt = (instruction >> 20) & 0b11111
+    _2625control_bits = (instruction >> 25) & 0b11
+    _3127opcode = (instruction >> 27) & 0b11111  
+    
+
+    value = _2420shamt
+    rs1 = [k for k, v in abi_names.items() if v == _1915source_register][0]
+    rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
+
+    opcode_bin = f"{_62opcode:05b}" + f"{_10alignment:02b}"
+    instruction_name = None
+
+    if opcode_bin in instruction_set:
+        if isinstance(instruction_set[opcode_bin], dict):
+            func_bin = f"{_3127opcode:05b}" + f"{_1412function:03b}"
+            if func_bin in instruction_set[opcode_bin]:
+                instruction_name = instruction_set[opcode_bin][func_bin]
+            else:
+                instruction_name = "Unknown function"
+        else:
+            instruction_name = instruction_set[opcode_bin]
+
+    if instruction_name is None:
+        instruction_name = "Unknown opcode"
+
+
+    decoded_instruction = {
+        "opcode_higher": f"{_3127opcode}",
+        "control_bits": f"{_2625control_bits}",
+        "shamt_value": f"{value}",
+        "source_register_1": rs1,
+        "function":f"{_1412function:03b}",
+        "destination_register": rd,
+        "opcode": f"{_62opcode:05b}",
+        "alignment": f"{_10alignment:02b}",
+        "decoded_function": instruction_name
+    }
+
+    print(decoded_instruction)
+    
+    return decoded_instruction
+
+unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
+
+
+##########################################
+# exemplu adresa sub 1081282099 #
+##########################################
+
+
+def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
+    instruction = 1081282099
+
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    _117destination_register = (instruction >> 7) & 0b11111
+    _1412function = (instruction >> 12) & 0b111
+    _1915source_register = (instruction >> 15) & 0b11111
+    _2420source_register = (instruction >> 20) & 0b11111
+    _2625control_bits = (instruction >> 25) & 0b1111111 
+    _3127opcode = (instruction >> 27) & 0b111 
+
+    rs1 = [k for k, v in abi_names.items() if v == _2420source_register][0]
+    rs2 = [k for k, v in abi_names.items() if v == _1915source_register][0]
+    rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
+
+    opcode_bin = f"{_62opcode:05b}" + f"{_10alignment:02b}"
+    print(opcode_bin)
+    instruction_name = None
+
+    if opcode_bin in instruction_set:
+        if isinstance(instruction_set[opcode_bin], dict):
+            func_bin = f"{_2625control_bits:07b}" + "_" + f"{_3127opcode:03b}"
+            if func_bin in instruction_set[opcode_bin]:
+                instruction_name = instruction_set[opcode_bin][func_bin]
+            else:
+                instruction_name = "Unknown function"
+        else:
+            instruction_name = instruction_set[opcode_bin]
+
+    if instruction_name is None:
+        instruction_name = "Unknown opcode"
+
+
+    decoded_instruction = {
+        "opcode": f"{_3127opcode:03b}",
+        "control_bits": f"{_2625control_bits:07b}",
+        "source_register_1": rs1,
+        "source_register_2": rs2,
+        "function": f"{_1412function:03b}",
+        "destination_register": rd,
+        "opcode": f"{_62opcode:05b}",
+        "alignment": f"{_10alignment:02b}",
+        "decoded_function": instruction_name
+    }
+
+    print(decoded_instruction)
+    
+    return decoded_instruction
+
+
