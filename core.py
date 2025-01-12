@@ -15,6 +15,9 @@ def signed2unsigned(value):
     unsigned_value = value & 0x7FFFFFFF + (2**32) * (value >> 32)
     return unsigned_value
 
+def cell2linescolumns(value):
+    return value/10, value%10
+
 ## add ##
 def add(rd, rs1, rs2):
     reg[rd] = reg[rs1] + reg[rs2]
@@ -176,58 +179,337 @@ def ori(rd, rs1, immediate_value):
 ## CSR Read and Write ##
 def csrrw(rd, csr, rs1):
     if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = reg[rs1]
+        lines, columns = cell2linescolumns(csr)
+        reg[rd] = mem[lines, columns]
+        mem[lines, columns] = reg[rs1]
     reg[gp] += 1
     print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
 ## CSR Read and Set bits in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
 def csrrs(rd, csr, rs1):
     if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = reg[rs1] or reg[rd]
+        lines, columns = cell2linescolumns(csr)
+        reg[rd] = mem[lines, columns]
+        mem[lines, columns] = reg[rs1] or reg[rd]
     reg[gp] += 1
-    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    print(f"csrrs: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
 ## CSR Read and clear bits in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
 def csrrc(rd, csr, rs1):
     if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = reg[rs1] and not(reg[rd])
+        lines, columns = cell2linescolumns(csr)
+        reg[rd] = mem[lines, columns]
+        mem[lines, columns] = reg[rs1] and not(reg[rd])
     reg[gp] += 1
-    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    print(f"csrrc: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
 ## CSR Read and Write immediate ## NOT IN DICT YET ////////////////////////////////////////////////////////
 def csrrwi(rd, csr, uimm):
     if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = uimm and 0x0000001F
+        lines, columns = cell2linescolumns(csr)
+        reg[rd] = mem[lines, columns]
+        mem[lines, columns] = uimm and 0x0000001F
     reg[gp] += 1
-    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    print(f"csrrwi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
 ## CSR Read and Set bits immediate in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
 def csrrsi(rd, csr, uimm):
     if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = (uimm and 0x0000001F) or reg[rd]
+        lines, columns = cell2linescolumns(csr)
+        reg[rd] = mem[lines, columns]
+        mem[lines, columns] = (uimm and 0x0000001F) or reg[rd]
     reg[gp] += 1
-    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    print(f"csrrsi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
 ## CSR Read and clear bits immediate in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
 def csrrci(rd, csr, uimm):
     if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = (uimm and 0x0000001F) and not(reg[rd])
+        lines, columns = cell2linescolumns(csr)
+        reg[rd] = mem[lines, columns]
+        mem[lines, columns] = (uimm and 0x0000001F) and not(reg[rd])
     reg[gp] += 1
-    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    print(f"csrrci: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
-##  ## NOT IN DICT YET ////////////////////////////////////////////////////////
+## Stops execution ## NOT IN DICT YET ////////////////////////////////////////////////////////
 def ecall():
-    if rd != "R0":
-        reg[rd] = mem.get(csr, 0)
-        mem[csr] = (uimm and 0x0000001F) and not(reg[rd])
+    exit()
+
+## Stops execution ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def ebreak():
+    print("No debugging mode enabled")
+    exit()
+
+def uret():
+    print("No user mode enabled")
+    exit()
+
+def sret():
+    print("No supervised mode enabled")
+    exit()
+
+def mret():
+    print("No memory mode enabled")
+    exit()
+
+def wfi():
+    print("No interrups")
+    exit()
+
+## Load a 8-bit value from memory ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def lb(rd, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[lines, columns]
+    temp = ((temp and 0x80000000) >> 24) or (temp and 0x0000007F)
+    reg[rd] = extend_sign(temp, 8)
     reg[gp] += 1
-    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    print(f"LB: {rd} = {reg[rd]}")
+
+## Load a 16-bit value from memory ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def lh(rd, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[lines, columns]
+    temp = ((temp and 0x80000000) >> 16) or (temp and 0x00007FFF)
+    reg[rd] = extend_sign(temp, 16)
+    reg[gp] += 1
+    print(f"LH: {rd} = {reg[rd]}")
+
+## Load a 32-bit value from memory ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def lw(rd, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[lines, columns]
+    reg[rd] = temp
+    reg[gp] += 1
+    print(f"LW: {rd} = {reg[rd]}")
+
+## Load a 8-bit value from memory zero-extend ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def lbu(rd, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[lines, columns]
+    reg[rd] = temp and 0x000000FF
+    reg[gp] += 1
+    print(f"LBU: {rd} = {reg[rd]}")
+
+## Load a 16-bit value from memory zero-extend ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def lhu(rd, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[lines, columns]
+    reg[rd] = temp and 0x0000FFFF
+    reg[gp] += 1
+    print(f"LHU: {rd} = {reg[rd]}")
+
+## Store a 8-bit value in memory ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def sb(rs2, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = reg[rs2] and 0x000000FF
+    mem[lines, columns] = temp
+    reg[gp] += 1
+    print(f"SB: mem[{lines}, {columns}] = {temp}")
+
+## Store a 16-bit value in memory ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def sh(rs2, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    temp = reg[rs2] and 0x0000FFFF
+    mem[lines, columns] = temp
+    reg[gp] += 1
+    print(f"SH: mem[{lines}, {columns}] = {temp}")
+
+## Store a 32-bit value in memory ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def sw(rs2, offset, rs1):
+    lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
+    mem[lines, columns] = reg[rs2]
+    reg[gp] += 1
+    print(f"SW: mem[{lines}, {columns}] = {reg[rs2]}")
+
+## Jump and link (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def jal(rd, offset):
+    reg[rd] = reg[gp] + 1
+    reg[gp] += offset ############################################# MUST CHANGE TO ADDRESS LABEL
+
+## Jump and link register (ADRESARE DIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def jalr(rd, rs1, offset):
+    reg[rd] = reg[gp] + 1
+    reg[gp] = reg[rs1] + extend_sign(offset, 12)#################### MUST CHANGE TO ADDRESS LABEL
+
+## take branch if rs1 == rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def beq(rs1, rs2, offset):
+    if (reg[rs1] == reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 != rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bne(rs1, rs2, offset):
+    if (reg[rs1] != reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 < rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def blt(rs1, rs2, offset):
+    if (reg[rs1] < reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 >= rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bge(rs1, rs2, offset):
+    if (reg[rs1] >= reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 < rs2 - unsigned (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bltu(rs1, rs2, offset):
+    if (signed2unsigned(reg[rs1]) < signed2unsigned(reg[rs2])):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 >= rs2 - unsigned (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bge(rs1, rs2, offset):
+    if (signed2unsigned(reg[rs1]) >= signed2unsigned(reg[rs2])):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## Multiplication ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mul(rd, rs1, rs2):
+    temp = reg[rs1] * reg[rs2]
+    reg[rd] = temp and 0xFFFFFFFF 
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Multiplication upper stored ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mulh(rd, rs1, rs2):
+    temp = reg[rs1] * reg[rs2]
+    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Multiplication upper stored rs1 signed, rs2 unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mulhsu(rd, rs1, rs2):
+    temp = reg[rs1] * signed2unsigned(reg[rs2])
+    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Multiplication upper stored rs1 unsigned, rs2 unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mulhu(rd, rs1, rs2):
+    temp = signed2unsigned(reg[rs1]) * signed2unsigned(reg[rs2])
+    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Division ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def div(rd, rs1, rs2):
+    reg[rd] = reg[rs1] / reg[rs2]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Division unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def divu(rd, rs1, rs2):
+    reg[rd] = signed2unsigned(reg[rs1]) / signed2unsigned(reg[rs2])
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Modulo ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def rem(rd, rs1, rs2):
+    reg[rd] = reg[rs1] % reg[rs2]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Modulo unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def remu(rd, rs1, rs2):
+    reg[rd] = signed2unsigned(reg[rs1]) % signed2unsigned(reg[rs2])
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 swap with rs2 ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoswap_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    temp = reg[rd]
+    reg[rd] = reg[rs2]
+    reg[rs2] = temp
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 add with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoadd_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] += reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 xor with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoxor_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] = reg[rd] ^ reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 and with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoand_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] = reg[rd] and reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 or with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoor_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] = reg[rd] or reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load min result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amomin_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if reg[rd] > reg[rs2]:
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load max result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amomax_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if reg[rd] < reg[rs2]:
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load min result - unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amominu_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load max result - unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amomax_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if signed2unsigned(reg[rd]) < signed2unsigned(reg[rs2]):
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
 
 instruction_set = {
     "0110111": lui,
