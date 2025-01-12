@@ -320,9 +320,57 @@ def sw(rs2, offset, rs1):
     reg[gp] += 1
     print(f"SW: mem[{lines}, {columns}] = {reg[rs2]}")
 
-## Jump and link
+## Jump and link (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
 def jal(rd, offset):
-    reg[gp] += 1
+    reg[rd] = reg[gp] + 1
+    reg[gp] += offset ############################################# MUST CHANGE TO ADDRESS LABEL
+
+## Jump and link register (ADRESARE DIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def jalr(rd, rs1, offset):
+    reg[rd] = reg[gp] + 1
+    reg[gp] = reg[rs1] + extend_sign(offset, 12)#################### MUST CHANGE TO ADDRESS LABEL
+
+## take branch if rs1 == rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def beq(rs1, rs2, offset):
+    if (reg[rs1] == reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 != rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bne(rs1, rs2, offset):
+    if (reg[rs1] != reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 < rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def blt(rs1, rs2, offset):
+    if (reg[rs1] < reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 >= rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bge(rs1, rs2, offset):
+    if (reg[rs1] >= reg[rs2]):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 < rs2 - unsigned (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bltu(rs1, rs2, offset):
+    if (signed2unsigned(reg[rs1]) < signed2unsigned(reg[rs2])):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
+
+## take branch if rs1 >= rs2 - unsigned (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
+def bge(rs1, rs2, offset):
+    if (signed2unsigned(reg[rs1]) >= signed2unsigned(reg[rs2])):
+        reg[gp] += extend_sign(offset)
+    else:
+        reg[gp] += 1
 
 instruction_set = {
     "0110111": lui,
