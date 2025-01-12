@@ -289,6 +289,11 @@ if __name__ == "__main__":
         lw t2, 0x0(t0)             ; 7
         add t3, t1, t2             ; 8
         sw t3, 0x0(t0)             ; 9
+        lui t2, 0x7
+        auipc a1, 0xA
+        slli t1,a1,0x1
+        srli  t2,a2,0x2
+        srai  t3,a3,0x3
     loop: beq t3, a0, end          ; 10
         jal a0, loop               ; 11
     end: addi a7, zero, 0x7        ; 12
