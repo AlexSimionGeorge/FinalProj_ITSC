@@ -324,11 +324,25 @@ def sw(rs2, offset, rs1):
 def jal(rd, offset):
     reg[rd] = reg[gp] + 1
     reg[gp] += offset ############################################# MUST CHANGE TO ADDRESS LABEL
+    reg["R5"] = 0
+    reg["R6"] = 0
+    reg["R7"] = 0
+    reg["R28"] = 0
+    reg["R29"] = 0
+    reg["R30"] = 0
+    reg["R31"] = 0
 
 ## Jump and link register (ADRESARE DIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
 def jalr(rd, rs1, offset):
     reg[rd] = reg[gp] + 1
     reg[gp] = reg[rs1] + extend_sign(offset, 12)#################### MUST CHANGE TO ADDRESS LABEL
+    reg["R5"] = 0
+    reg["R6"] = 0
+    reg["R7"] = 0
+    reg["R28"] = 0
+    reg["R29"] = 0
+    reg["R30"] = 0
+    reg["R31"] = 0
 
 ## take branch if rs1 == rs2 (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
 def beq(rs1, rs2, offset):
