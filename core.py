@@ -380,7 +380,7 @@ def bltu(rs1, rs2, offset):
         reg[gp] += 1
 
 ## take branch if rs1 >= rs2 - unsigned (ADRESARE INDIRECTA)## NOT IN DICT YET ////////////////////////////////////////////////////////
-def bge(rs1, rs2, offset):
+def bgeu(rs1, rs2, offset):
     if (signed2unsigned(reg[rs1]) >= signed2unsigned(reg[rs2])):
         reg[gp] += extend_sign(offset)
     else:
@@ -516,7 +516,7 @@ def amominu_w(rd, rs2, rs1):
     print(f"{rd} = {reg[rd]}")
 
 ## memory rs1 compared with rs2 and load max result - unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
-def amomax_w(rd, rs2, rs1):
+def amomaxu_w(rd, rs2, rs1):
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     if signed2unsigned(reg[rd]) < signed2unsigned(reg[rs2]):
@@ -526,28 +526,100 @@ def amomax_w(rd, rs2, rs1):
     print(f"{rd} = {reg[rd]}")
 
 instruction_set = {
-    "0110111": lui,
-    "0010111": auipc,
-    "0110011": {  
-        "0000000_000": add,
-        "0100000_000": sub,
-        "0000000_111": and_op, 
-        "0000000_110": or_op,
-        "0000000_100": xor_op,
-        "0000000_010": slt,
-        "0000000_001": sll, 
-        "0000001_001": srl,
-        "0100000_001": sra, 
+    "0000011": {
+        "000": lb,
+        "001": lh,
+        "010": lw,
+        "100": lbu,
+        "101": lhu,
     },
     "0010011": {  
         "000": addi,
+        "001": slli,
         "010": slti,
         "011": sltiu,
         "100": xori,
-        "111": andi,
-        "110": ori
+        "101": {
+            "00000" : srli,
+            "01000" : srai,
+        },
+        "110": ori,
+        "111": andi
     },
-    "1110011": csrrw,
+    "0010111": auipc,
+    "0101111": {
+        "010": {
+            "00000": amoadd_w,
+            "00001": amoswap_w,
+            "00100": amoxor_w,
+            "01000": amoor_w,
+            "01100": amoand_w,
+            "10000": amomin_w,
+            "10100": amomax_w,
+            "11000": amominu_w,
+            "11100": amomaxu_w,
+        },
+    },
+    "0100011": {
+        "000": sb,
+        "001": sh,
+        "010": sw, 
+    },
+    "0110011": {  
+        "0000000": {
+            "000": add,
+            "001": sll,
+            "010": slt,
+            "011": sltu,
+            "100": xor_op,
+            "101": srl,
+            "110": or_op,
+            "111": and_op,
+        },
+        "0000001": {
+            "000": mul,
+            "001": mulh,
+            "010": mulhsu,
+            "011": mulhu,
+            "100": div,
+            "101": divu,
+            "110": rem,
+            "111": remu,
+        },
+        "0100000": {
+            "000": sub,
+            "101": sra,
+        },
+    },
+    "0110111": lui,
+    "1100011": {
+        "000": beq,
+        "001": bne,
+        "100": blt,
+        "101": bge,
+        "110": bltu,
+        "111": bgeu,
+    },
+    "1100111": jalr,
+    "1101111": jal,
+    "1110011": {
+        "000": {
+            "00000": ecall,
+            "00001": ebreak,
+            "00010": {
+                "00000": uret,
+                "00010": sret,
+                "00110": mret,
+                "00101": wfi,
+            },
+        },
+        "001": csrrw,
+        "010": csrrs,
+        "011": csrrc,
+        "101": csrrwi,
+        "110": csrrsi,
+        "111": csrrci
+    }
 }
 
 
