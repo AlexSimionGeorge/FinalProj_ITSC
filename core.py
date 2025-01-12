@@ -11,6 +11,9 @@ def extend_sign(value, bits):
     sign_bit = 1 << (bits - 1)
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
+def signed2unsigned(value):
+    unsigned_value = value & 0x7FFFFFFF + (2**32) * (value >> 32)
+    return unsigned_value
 
 ## add ##
 def add(rd, rs1, rs2):
@@ -82,9 +85,21 @@ def slti(rd, rs1, immediate_value):
     print(f"{rd} = {reg[rd]}")
 
 
-## Set less than immediate unsigned ##
+## Set less than immediate unsigned ## 
 def sltiu(rd, rs1, immediate_value):
-    reg[rd] = int((reg[rs1] & 0xFFFFFFFF) < (extend_sign(immediate_value, 12) & 0xFFFFFFFF))
+    if (signed2unsigned(reg[rs1]) < signed2unsigned(extend_sign(immediate_value, 12) & 0xFFFFFFFF)):
+        reg[rd] = 1
+    else:
+        reg[rd] = 0 
+    reg[gp] += 4
+    print(f"{rd} = {reg[rd]}")
+
+## Set less than rs2 unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def sltu(rd, rs1, rs2):
+    if (signed2unsigned(reg[rs1]) < signed2unsigned(reg[rs2])):
+        reg[rd] = 1
+    else:
+        reg[rd] = 0 
     reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
@@ -102,6 +117,17 @@ def sll(rd, rs1, rs2):
     reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
+## Shift left logical immediate ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def slli(rd, rs1, shamt):
+    reg[rd] = reg[rs1] << shamt
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Shift right logical immediate ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def srli(rd, rs1, shamt):
+    reg[rd] = reg[rs1] >> shamt
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
 
 ## Shift right logical ## 
 def srl(rd, rs1, rs2):
@@ -113,11 +139,18 @@ def srl(rd, rs1, rs2):
 ## Shift right arithmetic ##
 def sra(rd, rs1, rs2):
     reg[rd] = reg[rs1] >> reg[rs2]
-    if reg[rs1] < 0:  # Sign-extend the shift
+    if reg[rs1] < 0:  # Sign-extend the shift 
         reg[rd] |= (0xFFFFFFFF << (32 - reg[rs2]))
     reg[gp] += 4
     print(f"{rd} = {reg[rd]}")
 
+## Shift right arithmetic immediate ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def srai(rd, rs1, shamt):
+    reg[rd] = reg[rs1] >> reg[rs2]
+    if reg[rs1] < 0:  # Sign-extend the shift
+        reg[rd] |= (0xFFFFFFFF << (32 - shamt))
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
 
 ## Set equal ##
 def seq(rd, rs1, rs2):
@@ -148,6 +181,53 @@ def csrrw(rd, csr, rs1):
     reg[gp] += 4
     print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
+## CSR Read and Set bits in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def csrrs(rd, csr, rs1):
+    if rd != "R0":
+        reg[rd] = mem.get(csr, 0)
+        mem[csr] = reg[rs1] or reg[rd]
+    reg[gp] += 1
+    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+
+## CSR Read and clear bits in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def csrrc(rd, csr, rs1):
+    if rd != "R0":
+        reg[rd] = mem.get(csr, 0)
+        mem[csr] = reg[rs1] and not(reg[rd])
+    reg[gp] += 1
+    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+
+## CSR Read and Write immediate ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def csrrwi(rd, csr, uimm):
+    if rd != "R0":
+        reg[rd] = mem.get(csr, 0)
+        mem[csr] = uimm and 0x0000001F
+    reg[gp] += 1
+    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+
+## CSR Read and Set bits immediate in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def csrrsi(rd, csr, uimm):
+    if rd != "R0":
+        reg[rd] = mem.get(csr, 0)
+        mem[csr] = (uimm and 0x0000001F) or reg[rd]
+    reg[gp] += 1
+    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+
+## CSR Read and clear bits immediate in CSR ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def csrrci(rd, csr, uimm):
+    if rd != "R0":
+        reg[rd] = mem.get(csr, 0)
+        mem[csr] = (uimm and 0x0000001F) and not(reg[rd])
+    reg[gp] += 1
+    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+
+##  ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def ecall():
+    if rd != "R0":
+        reg[rd] = mem.get(csr, 0)
+        mem[csr] = (uimm and 0x0000001F) and not(reg[rd])
+    reg[gp] += 1
+    print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
 
 instruction_set = {
     "0110111": lui,
