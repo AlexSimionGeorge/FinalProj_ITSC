@@ -283,6 +283,8 @@ def assemble_code(code, memory):
     return memory, initial_index_mapped_to_memory
 
 
+
+
 # print(functions["beq"]([], ["t1", "t2", "0x10"]))
 mock_code = """
     .data

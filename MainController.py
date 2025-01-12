@@ -2,7 +2,6 @@ import tkinter as tk
 
 from Assembler import assemble_code
 
-
 current_line = 0
 initial_index_mapped_to_memory = []
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
@@ -73,6 +72,7 @@ def main():
         global mem
         global initial_index_mapped_to_memory
         mem, initial_index_mapped_to_memory = assemble_code(code, mem)
+        
 
         lines = code.splitlines()
 
@@ -148,7 +148,6 @@ def main():
         step_button.grid(row=len(lines) + 2, column=0, pady=10)
 
 
-
     def swap_to_compile_view():
         input_code.pack_forget()
         run_button.pack_forget()
@@ -169,8 +168,9 @@ def main():
     input_code = tk.Text(master, height=50, width=100)
     run_button = tk.Button(master, text="Run", command=swap_to_compile_view)
     input_view()
-
+    
     master.mainloop()
+
 
 if __name__ == "__main__":
     main()
