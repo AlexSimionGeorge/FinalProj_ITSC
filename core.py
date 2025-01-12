@@ -372,6 +372,145 @@ def bge(rs1, rs2, offset):
     else:
         reg[gp] += 1
 
+## Multiplication ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mul(rd, rs1, rs2):
+    temp = reg[rs1] * reg[rs2]
+    reg[rd] = temp and 0xFFFFFFFF 
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Multiplication upper stored ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mulh(rd, rs1, rs2):
+    temp = reg[rs1] * reg[rs2]
+    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Multiplication upper stored rs1 signed, rs2 unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mulhsu(rd, rs1, rs2):
+    temp = reg[rs1] * signed2unsigned(reg[rs2])
+    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Multiplication upper stored rs1 unsigned, rs2 unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def mulhu(rd, rs1, rs2):
+    temp = signed2unsigned(reg[rs1]) * signed2unsigned(reg[rs2])
+    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Division ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def div(rd, rs1, rs2):
+    reg[rd] = reg[rs1] / reg[rs2]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Division unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def divu(rd, rs1, rs2):
+    reg[rd] = signed2unsigned(reg[rs1]) / signed2unsigned(reg[rs2])
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Modulo ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def rem(rd, rs1, rs2):
+    reg[rd] = reg[rs1] % reg[rs2]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## Modulo unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def remu(rd, rs1, rs2):
+    reg[rd] = signed2unsigned(reg[rs1]) % signed2unsigned(reg[rs2])
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 swap with rs2 ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoswap_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    temp = reg[rd]
+    reg[rd] = reg[rs2]
+    reg[rs2] = temp
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 add with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoadd_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] += reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 xor with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoxor_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] = reg[rd] ^ reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 and with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoand_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] = reg[rd] and reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 or with rs2 and load result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amoor_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    reg[rd] = reg[rd] or reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load min result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amomin_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if reg[rd] > reg[rs2]:
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load max result ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amomax_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if reg[rd] < reg[rs2]:
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load min result - unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amominu_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
+## memory rs1 compared with rs2 and load max result - unsigned ## NOT IN DICT YET ////////////////////////////////////////////////////////
+def amomax_w(rd, rs2, rs1):
+    lines, columns = cell2linescolumns(rs1)
+    reg[rd] = mem[lines, columns]
+    if signed2unsigned(reg[rd]) < signed2unsigned(reg[rs2]):
+        reg[rd] = reg[rs2]
+    mem[lines, columns] = reg[rd]
+    reg[gp] += 1
+    print(f"{rd} = {reg[rd]}")
+
 instruction_set = {
     "0110111": lui,
     "0010111": auipc,
