@@ -1,9 +1,10 @@
 import tkinter as tk
+from pprint import pprint
 
 from Assembler import assemble_code
 
 current_line = 0
-initial_index_mapped_to_memory = []
+initial_index_mapped_to_memory = dict()
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 ###register directory + memory directory###
@@ -12,7 +13,7 @@ abi_names = [
     "zero",
     "ra",
     "sp",
-    "gp",
+    "gp", #reg['x3']
     "tp",
     "t0","t1","t2",
     "s0/fp",
@@ -32,8 +33,10 @@ def main():
 
     def execute_line_i(line_index, code_displayed_list, registers_displayed_list, memory_displayed_list):
         global initial_index_mapped_to_memory
+        frontend_indexes = list(initial_index_mapped_to_memory.keys())
+
         if line_index > 0:
-            code_displayed_list[initial_index_mapped_to_memory[line_index - 1]].config(background="white")
+            code_displayed_list[frontend_indexes[line_index - 1]].config(background="white")
 
         #CALL BACK with data
         # execute call here set the regs and all values
@@ -41,7 +44,7 @@ def main():
         # set_row_column(memory_displayed_list, 0, 0, line_index)
         # set_register(registers_displayed_list, line_index, 9)
 
-        code_displayed_list[initial_index_mapped_to_memory[line_index]].config(background="red")
+        code_displayed_list[frontend_indexes[line_index]].config(background="red")
 
     def create_scrollable_frame(parent, width, height):
         canvas = tk.Canvas(parent, width=width, height=height)
@@ -61,7 +64,7 @@ def main():
         def step_through_lines():
             global current_line
             global initial_index_mapped_to_memory
-            if current_line < len(initial_index_mapped_to_memory):
+            if current_line < len(initial_index_mapped_to_memory.keys()):
                 execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list)
                 current_line += 1
 
@@ -72,11 +75,9 @@ def main():
         global mem
         global initial_index_mapped_to_memory
         mem, initial_index_mapped_to_memory = assemble_code(code, mem)
-        
+        pprint(initial_index_mapped_to_memory)
 
         lines = code.splitlines()
-
-
 
 
         ############CODE SECTION############

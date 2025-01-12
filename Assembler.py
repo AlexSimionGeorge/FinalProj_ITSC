@@ -2,6 +2,8 @@ import re
 from idlelib.debugobj_r import remote_object_tree_item
 from idlelib.editor import keynames
 
+from rest_framework.fields import empty
+
 abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
 def is_empty_string(s):
@@ -59,7 +61,6 @@ def _3120immediate_1915source_register_1412function_117destination_register_62op
 
     _62opcode = opcode
     _10alignment = "11"
-    print("imm",_3120immediate)
     return bin2dec(_3120immediate[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
 def _3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, function, opcode, _3127opcode, _2625control_bits):
@@ -241,76 +242,62 @@ def assemble_code(code, memory):
     line_index =[]
 
     for i,line in enumerate(code.splitlines()):
-        relevant = line.split(";", 1)[0] if ";" in line else line
-        if is_empty_string(relevant):
+        removed_comment = line.split(";", 1)[0] if ";" in line else line
+        if is_empty_string(removed_comment):
             continue
 
-        label, operation = extract_label_and_operation(relevant)
-
+        label, operation = extract_label_and_operation(removed_comment)
         operation = operation.lstrip(" \t\n")
         words =   re.split(r'[ ,()]+', operation)
+        words = [word for word in words if len(word) != 0]
 
         instruction =  words[0]
         params = words[1:]
 
         labels.append(label)
-        parameters.append(params)
         instructions.append(instruction)
+        parameters.append(params)
         line_index.append(i)
+
 
     not_found_instr = []
     memory_address_to_add_instr_coded = 0
-    initial_index_mapped_to_memory = []
+    initial_index_mapped_to_memory = dict()
+
+
     for i, instruction in enumerate(instructions):
         try:
             reduced_to_number = functions[instruction](labels, parameters[i])
             memory[(memory_address_to_add_instr_coded // 10, memory_address_to_add_instr_coded % 10)] = reduced_to_number
+            initial_index_mapped_to_memory[line_index[i]] = memory_address_to_add_instr_coded
             memory_address_to_add_instr_coded += 1
-            initial_index_mapped_to_memory.append(line_index[i])
-
         except KeyError:
-            # print(f"label:[{labels[i]}]", end="")
-            # print(f"instruction:[{instruction}]", end="")
-            # print( f"params:[{parameters[i]}]")
             not_found_instr.append(instruction)
 
 
-    print("instructions not founded/erroed:",not_found_instr)
-    # for i in initial_index_mapped_to_memory:
-    #     print("index:", i , "line:", code.splitlines()[i])
-    print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
+    # print("instructions not founded/erred:",not_found_instr)
+    # print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
 
     return memory, initial_index_mapped_to_memory
 
 
 
+if __name__ == "__main__":
+    mock_code = """
+        .data                      ; 1
+    num1:   .word 0x5              ; 2
+    num2:   .word 0x10             ; 3
+    result: .word 0x0              ; 4
+        .text                      ; 5
+    _start: lw t1, 0x0(t0)         ; 6
+        lw t2, 0x0(t0)             ; 7
+        add t3, t1, t2             ; 8
+        sw t3, 0x0(t0)             ; 9
+    loop: beq t3, a0, end          ; 10
+        jal a0, loop               ; 11
+    end: addi a7, zero, 0x7        ; 12
+        ecall                      ; 13
+    """
 
-# print(functions["beq"]([], ["t1", "t2", "0x10"]))
-mock_code = """
-    .data
-num1:   .word 0x5              ; First number (5)
-num2:   .word 0x10             ; Second number (10)
-result: .word 0x0              ; To store the result
-    .text
-    .globl _start
-_start: ; Load num1 into register t0
-    la t0, num1              ; Load address of num1 into t0 #la
-    lw t1, 0x0(t0)             ; Load value of num1 into t1 ; Load num2 into register t2
-    lw t1, 0x0(t0)
-    lw t1, 0x0(t0)
-    lw t1, 0x0(t0)
-    lw t1, 0x0(t0)
-    lw t1, 0x0(t0)
-    lw t1, 0x0(t0)
-    la t0, num2              ; Load address of num2 into t0
-    lw t2, 0x0(t0)             ; Load value of num2 into t2 ; Add t1 and t2, store the result in t3
-    add t3, t1, t2           ; t3 = t1 + t2 ; Store the result in memory (result)
-    la t0, result            ; Load address of result into t0
-    sw t3, 0x0(t0)             ; Store the value of t3 into result ; Example loop: decrement t3 until 0
-loop:
-    beq t3, a0, end          ; If t3 == 0, exit loop
-    jal a0, loop             ; Jump back to loop
-end: ; Exit program
-    li a7, 0x10                ; Load ecall code for exit (10) into a7
-    ecall                    ; Make the system call
-"""
+    mem = {(line, column): 0 for line in range(37) for column in range(10)}
+    assemble_code(mock_code, mem)
