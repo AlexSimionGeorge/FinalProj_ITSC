@@ -60,6 +60,18 @@ def main():
         scrollbar.pack(side="right", fill="y")
         return canvas, scrollable_frame
 
+    def process_lines(input_lines):
+        result = []
+        for line in input_lines.splitlines():
+            before_comment = line.split(";", 1)[0] if ";" in line else line
+            before_comment = before_comment.lower()
+            if ";" in line:
+                comment = line.split(";", 1)[1]
+                result.append(before_comment + ";" + comment)
+            else:
+                result.append(before_comment)
+        return "\n".join(result)
+
     def format_assembly_code(code):
         formatted_code = []
         labels = []
@@ -100,7 +112,7 @@ def main():
 
         code = input_code.get(1.0, tk.END)
         code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
-        #TODO to lowrecase
+        code = process_lines(code)
         code = format_assembly_code(code)
 
         # call assembler
