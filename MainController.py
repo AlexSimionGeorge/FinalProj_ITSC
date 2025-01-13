@@ -69,7 +69,9 @@ def main():
                 current_line += 1
 
         code = input_code.get(1.0, tk.END)
-        code = "\n".join(line for line in code.splitlines() if line.strip())
+        code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
+        #TODO to lowrecase
+        #TODO format LUKA
 
         # call assembler
         global mem

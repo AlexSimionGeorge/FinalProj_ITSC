@@ -1,4 +1,5 @@
 import re
+from pprint import pprint
 
 abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
@@ -106,7 +107,6 @@ def _3120offset_1915source_register_1412function_117destination_register_62opcod
     return bin2dec(_3120offset[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
 def _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function, _62opcode):
-
     offset = params[1]
     if offset in labels:
         return 1/0 # TODO :)
@@ -158,6 +158,16 @@ def b_3125offset_2420source_register_1915source_register_1412function_117offset_
 
     return bin2dec(offset_in_bin[12] + offset_in_bin[10: 5 -1: -1] + rs2 + rs1 + _1412function + offset_in_bin[4: 1 - 1:-1] + offset_in_bin[11] + _62opcode + _10alignment )
 
+
+def pop_push(params, function:str):
+    rd = dec2bin_str(abi_names[params[0]], 11, 7)
+
+    return bin2dec("01000000000000000" + function + rd +  "0110011")
+
+def dot_word(params):
+    val = params[0]
+    return hex2dec(val)
+
 functions = {
     "lui": lambda labels, params: _3112immediate_117destination_register_62opcode_10alignment(params, "01101"), # lui t2, 0x12345
     "auipc": lambda labels, params: _3112immediate_117destination_register_62opcode_10alignment(params, "00101"), # auipc x6, 0x12345
@@ -184,12 +194,17 @@ functions = {
     "or":  lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000",_2625control_bits="00", _1412function="110", _62opcode="01100"),
     "and":  lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000",_2625control_bits="00", _1412function="111", _62opcode="01100"),
 
+    "push": lambda labels, params:pop_push(params, "110"),
+    "pop" : lambda labels, params:pop_push(params, "111"),
+
+
     "ecall": lambda labels, params: bin2dec("00000" + "00" + "00000" + "00000" + "000" + "00000" + "11100" + "11"),
     "ebreak": lambda labels, params: bin2dec("00000" + "00" + "00001" + "00000" + "000" + "00000" + "11100" + "11"),
     "uret": lambda labels, params: bin2dec("00000" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
     "sret": lambda labels, params: bin2dec("00010" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
     "mret": lambda labels, params: bin2dec("00110" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
     "wfi": lambda labels, params: bin2dec("00010" + "00" + "00101" + "00000" + "000" + "00000" + "11100" + "11"),
+    "ret": lambda labels, params: bin2dec("10000" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
 
     "lb" : lambda labels, params: _3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(labels, params, _1412function="000", _62opcode="00000"),
     "lh" : lambda labels, params: _3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(labels, params, _1412function="001", _62opcode="00000"),
@@ -210,6 +225,7 @@ functions = {
     "bge": lambda labels, params: b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="101", _62opcode="11000"),
     "bltu": lambda labels, params: b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="110", _62opcode="11000"),
     "bgeu": lambda labels, params: b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="111", _62opcode="11000"),
+
 
     #TODO: fence
     "fence": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
@@ -250,6 +266,9 @@ def assemble_code(code, memory):
         instruction =  words[0]
         params = words[1:]
 
+        # print(i, "   ;",   line.split(";", 1)[1] if ";" in line else line)
+        # continue
+
         labels.append(label)
         instructions.append(instruction)
         parameters.append(params)
@@ -260,45 +279,87 @@ def assemble_code(code, memory):
     memory_address_to_add_instr_coded = 0
     initial_index_mapped_to_memory = dict()
 
+    labels_constants_dot_data = dict()
+    for i, instruction in enumerate(instructions):
+        if instruction == ".word":
+            labels_constants_dot_data[labels[i]] = parameters[i][0]
 
+
+    operations_with_const_labels = []
+    empty_memory_positions = []
     for i, instruction in enumerate(instructions):
         try:
+            # TODO append to list if has constant value, tine minte o list cu poz pe care sa le pui
+            skip_this = False
+            for param in parameters[i]:
+                if param in list(labels_constants_dot_data.keys()):
+                    operations_with_const_labels.append(i)
+                    skip_this = True
+                    break
+
+            if skip_this:
+                empty_memory_positions.append(memory_address_to_add_instr_coded)
+                initial_index_mapped_to_memory[line_index[i]] = memory_address_to_add_instr_coded
+                memory[(memory_address_to_add_instr_coded // 10, memory_address_to_add_instr_coded % 10)] = -1
+                memory_address_to_add_instr_coded += 1
+                continue
+
+
             reduced_to_number = functions[instruction](labels, parameters[i])
             memory[(memory_address_to_add_instr_coded // 10, memory_address_to_add_instr_coded % 10)] = reduced_to_number
             initial_index_mapped_to_memory[line_index[i]] = memory_address_to_add_instr_coded
             memory_address_to_add_instr_coded += 1
+
         except KeyError:
             not_found_instr.append(instruction)
 
+    #aduaga .data in mem
 
-    # print("instructions not founded/erred:",not_found_instr)
-    # print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
+    for indexing, i in enumerate(operations_with_const_labels):
+        mem_adr = empty_memory_positions[indexing]
+        params = []
+        for p in parameters[i]:
+            if p in list(labels_constants_dot_data.keys()):
+                params.append(labels_constants_dot_data[p])
+            else:
+                params.append(p)
+
+        reduced_to_number = functions[instructions[i]](labels, params)
+        memory[(mem_adr // 10, mem_adr % 10)] = reduced_to_number
+        # print(labels[i], instructions[i], parameters[i])
+
+
+    for i, instruction in enumerate(instructions):
+        if instruction == ".word":
+            reduced_to_number = dot_word(parameters[i][0])
+            memory[(memory_address_to_add_instr_coded // 10, memory_address_to_add_instr_coded % 10)] = reduced_to_number
+            initial_index_mapped_to_memory[line_index[i]] = memory_address_to_add_instr_coded
+            memory_address_to_add_instr_coded += 1
+
+
+    print("instructions not founded/erred:",not_found_instr)
+    print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
 
     return memory, initial_index_mapped_to_memory
 
 
 
 if __name__ == "__main__":
-    mock_code = """
-        .data                      ; 1
-    num1:   .word 0x5              ; 2
-    num2:   .word 0x10             ; 3
-    result: .word 0x0              ; 4
-        .text                      ; 5
-    _start: lw t1, 0x0(t0)         ; 6
-        lw t2, 0x0(t0)             ; 7
-        add t3, t1, t2             ; 8
-        sw t3, 0x0(t0)             ; 9
-        lui t2, 0x7
-        auipc a1, 0xA
-        slli t1,a1,0x1
-        srli  t2,a2,0x2
-        srai  t3,a3,0x3
-    loop: beq t3, a0, end          ; 10
-        jal a0, loop               ; 11
-    end: addi a7, zero, 0x7        ; 12
-        ecall                      ; 13
+    mock_code = """.data           ; 0
+    num1:   .word 0x5              ; 1
+    num2:   .word 0x10             ; 2
+    result: .word 0x0              ; 3
+        .code                      ; 4
+    _start: lw t1, 0x0(t0)         ; 5
+        lw t2, 0x0(t0)             ; 6
+        add t3, t1, t2             ; 7
+        sw t3, 0x0(t0)             ; 8
+    loop: beq t3, a0, end          ; 9
+        jal a0, loop               ; 10
+    end: addi a7, zero, num1        ; 11
+        ecall                      ; 12
     """
 
     mem = {(line, column): 0 for line in range(37) for column in range(10)}
-    assemble_code(mock_code, mem)
+    mem, dictionary = assemble_code(mock_code, mem)
+    pprint(dictionary)
