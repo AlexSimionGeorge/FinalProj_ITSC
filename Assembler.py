@@ -95,6 +95,21 @@ def _3127opcode_2625control_bits_2420source_register_1915source_register_1412fun
 
     return bin2dec(_3127opcode + _2625control_bits + _2420source_register + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
+def _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _1412function, _62opcode, _3127opcode, _2625control_bits):
+    #amo
+    rs2_index = abi_names[params[1]]
+    _2420source_register = dec2bin_str(rs2_index, 24, 20)
+
+    rs1_index = abi_names[params[2]]
+    _1915source_register = dec2bin_str(rs1_index, 19, 15)
+
+    rd_index = abi_names[params[0]]
+    _117destination_register = dec2bin_str(rd_index, 11, 7)
+
+    _10alignment = "11"
+
+    return bin2dec(_3127opcode + _2625control_bits + _2420source_register + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
+
 def _3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(labels, params, _1412function, _62opcode):
     offset = params[1]
     if offset in labels:
@@ -245,6 +260,16 @@ functions = {
     "csrrwi": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "csrrsi": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "csrrci": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
+
+    "amoswap.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00001",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amoadd.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00000",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amoxor.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00100",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amoand.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="01100",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amoor.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="01000",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amomin.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="10000",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amomax.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="10100",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amominu.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="11000",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amomaxu.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="11100",_2625control_bits="00", _1412function="010", _62opcode="01011"),
 }
 
 def extract_label_and_operation(text):
