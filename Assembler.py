@@ -194,10 +194,17 @@ functions = {
     "sra":  lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="01000",_2625control_bits="00", _1412function="101", _62opcode="01100"),
     "or":  lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000",_2625control_bits="00", _1412function="110", _62opcode="01100"),
     "and":  lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000",_2625control_bits="00", _1412function="111", _62opcode="01100"),
+    "mul": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="000", _62opcode="01100"),
+    "mulh": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="001", _62opcode="01100"),
+    "mulhsu": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="010", _62opcode="01100"),
+    "mulhu": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="011", _62opcode="01100"),
+    "div": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="100", _62opcode="01100"),
+    "divu": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="101", _62opcode="01100"),
+    "rem": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="110", _62opcode="01100"),
+    "remu": lambda labels,params: _3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(params, _3127opcode="00000", _2625control_bits="01", _1412function="111", _62opcode="01100"),
 
     "push": lambda labels, params:pop_push(params, "110"),
     "pop" : lambda labels, params:pop_push(params, "111"),
-
 
     "ecall": lambda labels, params: bin2dec("00000" + "00" + "00000" + "00000" + "000" + "00000" + "11100" + "11"),
     "ebreak": lambda labels, params: bin2dec("00000" + "00" + "00001" + "00000" + "000" + "00000" + "11100" + "11"),
