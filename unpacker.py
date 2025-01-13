@@ -417,3 +417,107 @@ def unpack__3120offset_1915source_register_1412function_117destination_register_
     return decoded_instruction
 
 unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
+
+
+
+
+def unpack_jalr(mem, address):
+    instruction = mem[address]
+    
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    _117rd = (instruction >> 7) & 0b11111
+    _1412function = (instruction >> 12) & 0b111
+    _1915rs1 = (instruction >> 15) & 0b11111
+    _3120imm = (instruction >> 20) & 0b111111111111
+
+
+    rs1 = [k for k, v in abi_names.items() if v == _1915rs1][0]
+    rd = [k for k, v in abi_names.items() if v == _117rd][0]
+
+    imm = _3120imm
+    if (_3120imm & 0b100000000000):
+        imm |= -(1 << 12)
+
+    return {
+        "opcode": "1100111",
+        "rd": rd,
+        "rs1": rs1,
+        "immediate": imm,
+        "decoded_function": "jalr"
+    }
+
+
+def unpack_jal(mem, address):
+    instruction = mem[address]
+    
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    _117rd = (instruction >> 7) & 0b11111
+    _1912imm_19_12 = (instruction >> 12) & 0b11111111
+    _20imm_11 = (instruction >> 20) & 0b1
+    _3021imm_10_1 = (instruction >> 21) & 0b1111111111
+    _31imm_20 = (instruction >> 31) & 0b1
+
+    rd = [k for k, v in abi_names.items() if v == _117rd][0]
+
+    imm = (_31imm_20 << 20) | (_1912imm_19_12 << 12) | (_20imm_11 << 11) | (_3021imm_10_1 << 1)
+    if (_31imm_20):
+        imm |= -(1 << 21)
+
+    return {
+        "opcode": "1101111",
+        "rd": rd,
+        "immediate": imm,
+        "decoded_function": "jal"
+    }
+
+
+
+def unpack_system(mem, address):
+    instruction = mem[address]
+    
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    _117rd = (instruction >> 7) & 0b11111
+    _1412funct3 = (instruction >> 12) & 0b111
+    _1915rs1 = (instruction >> 15) & 0b11111
+    _3120funct12 = (instruction >> 20) & 0b111111111111
+
+    rs1 = [k for k, v in abi_names.items() if v == _1915rs1][0]
+    rd = [k for k, v in abi_names.items() if v == _117rd][0]
+
+    funct3_bin = f"{_1412funct3:03b}"
+    funct12_bin = f"{_3120funct12:012b}"
+
+    if funct3_bin == "000":
+        if funct12_bin == "000000000000":
+            decoded_function = "ecall"
+        elif funct12_bin == "000000000001":
+            decoded_function = "ebreak"
+        elif funct12_bin == "000000000010":
+            if _1915rs1 == 0: #verific daca sunt diferite aici
+                decoded_function = "uret"
+            elif _1915rs1 == 2:
+                decoded_function = "sret"
+            elif _1915rs1 == 6:
+                decoded_function = "mret"
+            elif _1915rs1 == 5:
+                decoded_function = "wfi"
+            elif _1915rs1 == 16:
+                decoded_function = "ret"
+            else:
+                decoded_function = "unknown_system"
+        else:
+            decoded_function = "unknown_system"
+    else:
+        decoded_function = "unknown_system"
+
+    return {
+        "opcode": "1110011",
+        "rd": rd,
+        "rs1": rs1,
+        "funct3": funct3_bin,
+        "funct12": funct12_bin,
+        "decoded_function": decoded_function
+    }
