@@ -60,6 +60,22 @@ def main():
         scrollbar.pack(side="right", fill="y")
         return canvas, scrollable_frame
 
+    def format_assembly_code(code):
+        formatted_code = []
+    
+        for line in code.splitlines():
+            stripped_line = line.strip()
+            if ":" in stripped_line:
+                label, operation = stripped_line.split(":", 1)
+                formatted_code.append(label.strip() + ':')
+                formatted_code.append("\t" + operation.strip()) 
+            elif stripped_line.startswith("."):
+                formatted_code.append(stripped_line)
+            else:
+                formatted_code.append("\t" + stripped_line)
+
+        return "\n".join(formatted_code)
+
     def compile_view():
         def step_through_lines():
             global current_line
@@ -71,7 +87,7 @@ def main():
         code = input_code.get(1.0, tk.END)
         code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
         #TODO to lowrecase
-        #TODO format LUKA
+        code = format_assembly_code(code)
 
         # call assembler
         global mem
