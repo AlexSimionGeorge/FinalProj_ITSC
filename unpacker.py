@@ -1,12 +1,11 @@
 from core import instruction_set
 from core import reg
+from Assembler import abi_names
 
 #reg = {f"R{i}": 0 for i in range(32)}
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 gp = "gp" 
-
-abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
 
 def remove_trailing_zeros_and_revert(binary_value):
@@ -325,7 +324,7 @@ def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1
 
 
 def unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address, instructioni):
-    instruction = mem[address] 
+    instruction = 11406179
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -357,7 +356,12 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
         instruction_name = "Unknown opcode"
 
     #calcul offset ##
-    imm = ((_3125offset & 0b1111110) << 5) | (_117offset << 1)
+    offset11 = _3125offset >> 6
+    offset94 = _3125offset & 0b0111111
+    offset30 = _117offset >> 1
+    offset10 = _117offset & 0b1
+    imm = (offset11 << 10) | (offset94 << 3) | (offset30) | (offset10 << 9)
+    
     # deci if-ul asta il am ca sa verific daca e negativ si sa pot da ##
     # extend la semn ##
     if (_3125offset & 0b1000000): 
@@ -377,7 +381,7 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
     
     return decoded_instruction
 
-#unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, 0, None)
+unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, 0, None)
 
 
 
@@ -475,7 +479,7 @@ def unpack_jalr(mem, address, instructioni):
     return decoded_function
 
 
-unpack_jalr(mem, 0, None)
+# unpack_jalr(mem, 0, None)
 
 
 ## test 2147616111 ##
@@ -575,6 +579,9 @@ def unpack_system(mem, address, instructioni):
    
 def decode_and_execute_instruction(mem, reg, address):
     instruction = mem[address] # mem[reg["pc"]]
+
+    # mem[initial_index_mapped_to_memory[reg[pc]]]
+    # pc = initial_index_mapped_to_memory[value[reg[pc]]
 
     # Extract opcode and alignment
     _10alignment = instruction & 0b11
@@ -689,40 +696,35 @@ test_instructions2 = [
     172931,   
     7540275,   
     29532195,  
-    3758097335, 
-    1342178711, 
-    1413907,    
-    2511763,    
-    1077337619, 
-    279838819,  
-    918895,     
-    3758098579, 
-    115         
+    11406179, 
+    18875759, 
+    2684356755,    
+    115,          
 ]
 
-# # Load instructions into memory sequentially
-# for i, instr in enumerate(test_instructions):
-#     mem[i] = instr
+# Load instructions into memory sequentially
+for i, instr in enumerate(test_instructions):
+    mem[i] = instr
 
-# print("\nStarting execution...\n")
+print("\nStarting execution...\n")
 
-# # Execute instructions sequentially
-# for i in range(len(test_instructions)):
-#     print(f"\nExecuting instruction at address {i}")
-#     print(f"Current gp value: {reg['gp']}")
-#     next_address = decode_and_execute_instruction(mem, reg, i)
-#     print(f"Instruction executed, gp is now: {reg['gp']}")
+# Execute instructions sequentially
+for i in range(len(test_instructions)):
+    print(f"\nExecuting instruction at address {i}")
+    print(f"Current pc value: {reg['R3']}")
+    next_address = decode_and_execute_instruction(mem, reg, i)
+    print(f"Instruction executed, pc is now: {reg['R3']}")
 
-# # Print final state
-# print("\nFinal Register State:")
-# print("-" * 40)
-# for i in range(32):
-#     reg_name = [k for k, v in abi_names.items() if v == i][0]
-#     print(f"{reg_name} (x{i}): {reg[f'R{i}']}")
-#     if i == 3:  # Special highlight for gp
-#         print(f">>> gp final value: {reg['gp']} <<<")
+# Print final state
+print("\nFinal Register State:")
+print("-" * 40)
+for i in range(32):
+    reg_name = [k for k, v in abi_names.items() if v == i][0]
+    print(f"{reg_name} (x{i}): {reg[f'R{i}']}")
+    if i == 3:  # Special highlight for gp
+        print(f">>> pc final value: {reg['R3']} <<<")
 
-# print("\nNon-zero Memory Locations:")
-# print("-" * 40)
-# for addr in range(len(test_instructions)):
-#     print(f"Address {addr}: {mem[addr]} (0x{mem[addr]:08x})")
+print("\nNon-zero Memory Locations:")
+print("-" * 40)
+for addr in range(len(test_instructions)):
+    print(f"Address {addr}: {mem[addr]} (0x{mem[addr]:08x})")
