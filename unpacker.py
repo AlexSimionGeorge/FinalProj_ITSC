@@ -355,3 +355,65 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
     return decoded_instruction
 
 unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, 0)
+
+
+
+
+##########################################
+
+## lbu t1, 0x2(t2) => 1073988355
+
+##########################################
+
+
+
+def unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
+    instruction = 1073988355 
+
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    _117destination_register = (instruction >> 7) & 0b11111
+    _1412function = (instruction >> 12) & 0b111
+    _1915source_register = (instruction >> 15) & 0b11111
+    _3120offset = (instruction >> 20) & 0b111111111111
+
+    rs = [k for k, v in abi_names.items() if v == _1915source_register][0]
+    rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
+
+    opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
+    print(opcode_bin)
+    instruction_name = None
+
+    if opcode_bin in instruction_set:
+        if isinstance(instruction_set[opcode_bin], dict):
+            func_bin = f"{_1412function:03b}"
+            if func_bin in instruction_set[opcode_bin]:
+                instruction_name = instruction_set[opcode_bin][func_bin]
+            else:
+                instruction_name = "Unknown function"
+        else:
+            instruction_name = instruction_set[opcode_bin]
+
+    if instruction_name is None:
+        instruction_name = "Unknown opcode"
+
+    imm = _3120offset
+    if (_3120offset & 0b100000000000):
+        imm |= -(1 << 12) 
+
+
+    decoded_instruction = {
+        "offset": imm,
+        "source_register": rs,
+        "destination_register": rd,
+        "function": f"{_1412function:03b}",
+        "opcode": f"{_62opcode:05b}",
+        "alignment": f"{_10alignment:02b}",
+        "decoded_function": instruction_name
+    }
+
+    print(decoded_instruction)
+    
+    return decoded_instruction
+
+unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
