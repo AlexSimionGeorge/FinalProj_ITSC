@@ -1,6 +1,7 @@
 from core import instruction_set
+from core import reg
 
-reg = {f"R{i}": 0 for i in range(32)}
+#reg = {f"R{i}": 0 for i in range(32)}
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 gp = "gp" 
@@ -32,8 +33,8 @@ def get_register_name(reg_num):
 ##########################################
 
 
-def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, address):
-    instruction = 1342178711
+def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[address]
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -64,13 +65,13 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
         "decoded_function": instruction_name
     }
 
-    print(decoded_instruction)
+    #print(decoded_instruction)
     
     return decoded_instruction
 
-print("TEST LUI : \n\n")
-unpack__3112immediate_117destination_register_62opcode_10alignment(mem, 0)
-print("\n\n\n\n\n")
+#print("TEST LUI : \n\n")
+#unpack__3112immediate_117destination_register_62opcode_10alignment(mem, 0)
+#print("\n\n\n\n\n")
 
 
 ##########################################
@@ -87,8 +88,8 @@ print("\n\n\n\n\n")
 
 
 
-def unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
-    instruction = 3825402771
+def unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[address]
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -140,12 +141,12 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
         "decoded_function": instruction_name
     }
 
-    print(decoded_instruction)
+    #print(decoded_instruction)
     return decoded_instruction
 
-print("addi:\n\n")
-unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
-print("\n\n")
+#print("addi:\n\n")
+#unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
+#print("\n\n")
 
 ##########################################
 
@@ -156,8 +157,8 @@ print("\n\n")
 ##########################################
 
 
-def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
-    instruction = 1077337619
+def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[address]
     
 
     _10alignment = instruction & 0b11
@@ -213,11 +214,11 @@ def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412functi
         "decoded_function": f"{instruction_name}"
     }
     
-    print(decoded_instruction)
+    #print(decoded_instruction)
     
     return decoded_instruction
 
-unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
+#unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
 
 
 
@@ -226,8 +227,8 @@ unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_1
 ##########################################
 
 
-def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
-    instruction = 1081282099
+def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[address]
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -282,12 +283,9 @@ def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1
         "decoded_function": instruction_name
     }
 
-    print(decoded_instruction)
+    #print(decoded_instruction)
 
-unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
-
-
-
+#unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
 
 
 ##########################################
@@ -301,8 +299,8 @@ unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412f
 ##########################################
 
 
-def unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address):
-    instruction = 279838819  
+def unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[address] 
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -350,11 +348,11 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
         "decoded_function": instruction_name
     }
 
-    print(decoded_instruction)
+    #print(decoded_instruction)
     
     return decoded_instruction
 
-unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, 0)
+#unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, 0)
 
 
 
@@ -367,8 +365,8 @@ unpack__b_3125offset_2420source_register_1915source_register_1412function_117off
 
 
 
-def unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address):
-    instruction = 1073988355 
+def unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[address] 
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -412,16 +410,16 @@ def unpack__3120offset_1915source_register_1412function_117destination_register_
         "decoded_function": instruction_name
     }
 
-    print(decoded_instruction)
+    #print(decoded_instruction)
     
     return decoded_instruction
 
-unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
+#unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
 
 
 
 
-def unpack_jalr(mem, address):
+def unpack_jalr(mem, address, instructioni):
     instruction = mem[address]
     
     _10alignment = instruction & 0b11
@@ -448,7 +446,7 @@ def unpack_jalr(mem, address):
     }
 
 
-def unpack_jal(mem, address):
+def unpack_jal(mem, address, instructioni):
     instruction = mem[address]
     
     _10alignment = instruction & 0b11
@@ -474,7 +472,7 @@ def unpack_jal(mem, address):
 
 
 
-def unpack_system(mem, address):
+def unpack_system(mem, address, instructioni):
     instruction = mem[address]
     
     _10alignment = instruction & 0b11
@@ -521,3 +519,166 @@ def unpack_system(mem, address):
         "funct12": funct12_bin,
         "decoded_function": decoded_function
     }
+    
+    
+    
+##########################################
+
+       #### DECODING FUNCTION ###
+
+##########################################
+    
+   
+def decode_and_execute_instruction(mem, reg, address):
+    instruction = mem[address]
+
+    # Extract opcode and alignment
+    _10alignment = instruction & 0b11
+    _62opcode = (instruction >> 2) & 0b11111
+    opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
+
+    print(f"Decoding instruction at address {address}: opcode {opcode_bin}")
+
+    decoded = None
+    execution_args = []
+
+    # Decode the instruction and extract `decoded_function`
+    if opcode_bin in {"0110111", "0010111"}:  # LUI, AUIPC
+        decoded = unpack__3112immediate_117destination_register_62opcode_10alignment(mem, address, None)
+
+    elif opcode_bin == "0010011":  # I-type instructions
+        decoded = unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, None)
+
+    elif opcode_bin == "0110011":  # R-type instructions
+        decoded = unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, None)
+
+    elif opcode_bin == "0000011":  # Load instructions
+        decoded = unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, None)
+
+    elif opcode_bin == "1100011":  # Branch instructions
+        decoded = unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address, None)
+
+    elif opcode_bin == "1100111":  # JALR
+        decoded = unpack_jalr(mem, address, None)
+
+    elif opcode_bin == "1101111":  # JAL
+        decoded = unpack_jal(mem, address, None)
+
+    elif opcode_bin == "1110011":  # System instructions
+        decoded = unpack_system(mem, address, None)
+
+    # Ensure `decoded_function` is valid
+    if decoded and "decoded_function" in decoded:
+        execution_function = decoded["decoded_function"]
+
+        if callable(execution_function):
+            # Build arguments dynamically based on the instruction type
+            if opcode_bin in {"0110111", "0010111"}:  # LUI, AUIPC
+                execution_args = [
+                    f"R{abi_names[decoded['destination_register']]}",
+                    decoded["immediate_value"],
+                ]
+
+            elif opcode_bin == "0010011":  # I-type
+                execution_args = [
+                    f"R{abi_names[decoded['destination_register']]}",
+                    f"R{abi_names[decoded['source_register_1']]}",
+                    decoded["immediate_value"],
+                ]
+
+            elif opcode_bin == "0110011":  # R-type
+                execution_args = [
+                    f"R{abi_names[decoded['destination_register']]}",
+                    f"R{abi_names[decoded['source_register_1']]}",
+                    f"R{abi_names[decoded['source_register_2']]}",
+                ]
+
+            elif opcode_bin == "0000011":  # Load
+                execution_args = [
+                    f"R{abi_names[decoded['destination_register']]}",
+                    decoded["offset"],
+                    f"R{abi_names[decoded['source_register']]}",
+                ]
+
+            elif opcode_bin == "1100011":  # Branch
+                execution_args = [
+                    f"R{abi_names[decoded['source_register_1']]}",
+                    f"R{abi_names[decoded['source_register_2']]}",
+                    decoded["offset"],
+                ]
+
+            elif opcode_bin in {"1100111", "1101111"}:  # JALR, JAL
+                execution_args = [
+                    f"R{abi_names[decoded['rd']]}",
+                    decoded["immediate"],
+                ]
+
+            # Execute the function
+            print(f"Decoded instruction: {decoded}")
+            print(f"Execution function: {execution_function}")
+            print(f"Execution arguments: {execution_args}")
+            try:
+                execution_function(*execution_args)
+            except Exception as e:
+                print(f"Error during execution: {e}")
+                return address + 1
+            return address + 1
+        else:
+            print(f"Invalid or unknown decoded function for instruction at address {address}")
+    else:
+        print(f"Unknown or unimplemented instruction at address {address}")
+
+    return address + 1
+    
+    
+reg['gp'] = 0  # Initialize gp (x3) to 0
+
+# Test data
+test_instructions = [
+    2147681171,
+    2147716627,
+    2148402451    
+]
+
+test_instructions2 = [
+    172803,    
+    172931,   
+    7540275,   
+    29532195,  
+    3758097335, 
+    1342178711, 
+    1413907,    
+    2511763,    
+    1077337619, 
+    279838819,  
+    918895,     
+    3758098579, 
+    115         
+]
+
+# Load instructions into memory sequentially
+for i, instr in enumerate(test_instructions):
+    mem[i] = instr
+
+print("\nStarting execution...\n")
+
+# Execute instructions sequentially
+for i in range(len(test_instructions)):
+    print(f"\nExecuting instruction at address {i}")
+    print(f"Current gp value: {reg['gp']}")
+    next_address = decode_and_execute_instruction(mem, reg, i)
+    print(f"Instruction executed, gp is now: {reg['gp']}")
+
+# Print final state
+print("\nFinal Register State:")
+print("-" * 40)
+for i in range(32):
+    reg_name = [k for k, v in abi_names.items() if v == i][0]
+    print(f"{reg_name} (x{i}): {reg[f'R{i}']}")
+    if i == 3:  # Special highlight for gp
+        print(f">>> gp final value: {reg['gp']} <<<")
+
+print("\nNon-zero Memory Locations:")
+print("-" * 40)
+for addr in range(len(test_instructions)):
+    print(f"Address {addr}: {mem[addr]} (0x{mem[addr]:08x})")

@@ -26,7 +26,7 @@ def add(rd, rs1, rs2):
 
 ## add immediate value ##
 def addi(rd, rs1, immediate_value):
-    reg[rd] = reg[rs1] + immediate_value
+    reg[rd] = reg[rs1] + int(immediate_value)
     reg[gp] += 1
     print(f"{rd} = {reg[rd]}")
 
