@@ -1,13 +1,17 @@
 import re
 from pprint import pprint
 
+from django.core.files.storage import memory
+
 abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
 def is_empty_string(s):
     return not any(c.isprintable() and not c.isspace() for c in s)
+
 def hex2dec(hex_string):
     try:
         decimal_value = int(hex_string, 16)
+        # print("hex:", hex_string, "dec:", decimal_value)
         return decimal_value
     except ValueError:
         print(f"error in: hex2dec({hex_string})")
@@ -166,7 +170,7 @@ def pop_push(params, function:str):
 
 def dot_word(params):
     val = params[0]
-    return hex2dec(val)
+    return hex2dec(str(val))
 
 functions = {
     "lui": lambda labels, params: _3112immediate_117destination_register_62opcode_10alignment(params, "01101"), # lui t2, 0x12345
@@ -285,6 +289,11 @@ def assemble_code(code, memory):
             labels_constants_dot_data[labels[i]] = parameters[i][0]
 
 
+
+
+
+
+
     operations_with_const_labels = []
     empty_memory_positions = []
     for i, instruction in enumerate(instructions):
@@ -313,8 +322,8 @@ def assemble_code(code, memory):
         except KeyError:
             not_found_instr.append(instruction)
 
-    #aduaga .data in mem
 
+    # add in memory instr that depend on .data
     for indexing, i in enumerate(operations_with_const_labels):
         mem_adr = empty_memory_positions[indexing]
         params = []
@@ -329,12 +338,17 @@ def assemble_code(code, memory):
         # print(labels[i], instructions[i], parameters[i])
 
 
+
+
+
+
     for i, instruction in enumerate(instructions):
         if instruction == ".word":
-            reduced_to_number = dot_word(parameters[i][0])
+            reduced_to_number = dot_word(parameters[i])
             memory[(memory_address_to_add_instr_coded // 10, memory_address_to_add_instr_coded % 10)] = reduced_to_number
             initial_index_mapped_to_memory[line_index[i]] = memory_address_to_add_instr_coded
             memory_address_to_add_instr_coded += 1
+
 
 
     print("instructions not founded/erred:",not_found_instr)
@@ -349,17 +363,17 @@ if __name__ == "__main__":
     num1:   .word 0x5              ; 1
     num2:   .word 0x10             ; 2
     result: .word 0x0              ; 3
-        .code                      ; 4
+    .code                      ; 4
     _start: lw t1, 0x0(t0)         ; 5
-        lw t2, 0x0(t0)             ; 6
-        add t3, t1, t2             ; 7
-        sw t3, 0x0(t0)             ; 8
-    loop: beq t3, a0, end          ; 9
-        jal a0, loop               ; 10
-    end: addi a7, zero, num1        ; 11
-        ecall                      ; 12
+            lw  t2, 0x0(t0)             ; 6
+            add t3, t1, t2             ; 7
+            sw  t3, 0x0(t0)             ; 8
+    loop:   beq t3, a0, end          ; 9
+            jal a0, loop               ; 10
+    end:    addi a7, zero, num1        ; 11
+            ecall                      ; 12
     """
 
     mem = {(line, column): 0 for line in range(37) for column in range(10)}
     mem, dictionary = assemble_code(mock_code, mem)
-    pprint(dictionary)
+    # pprint(dictionary)
