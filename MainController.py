@@ -62,17 +62,31 @@ def main():
 
     def format_assembly_code(code):
         formatted_code = []
-    
+        labels = []
+
         for line in code.splitlines():
             stripped_line = line.strip()
             if ":" in stripped_line:
                 label, operation = stripped_line.split(":", 1)
-                formatted_code.append(label.strip() + ':')
-                formatted_code.append("\t" + operation.strip()) 
+                labels.append(label.strip())
+    
+        if labels:
+            max_label_length = max(len(label) for label in labels)
+        else:
+            max_label_length = 0
+
+        for line in code.splitlines():
+            stripped_line = line.strip()
+            if ":" in stripped_line:
+                label, operation = stripped_line.split(":", 1)
+                label = label.strip()
+                operation = operation.strip()            
+                label_padding = " " * (max_label_length - len(label))
+                formatted_code.append(label + ":" + label_padding + "\t" + operation)
             elif stripped_line.startswith("."):
                 formatted_code.append(stripped_line)
             else:
-                formatted_code.append("\t" + stripped_line)
+                formatted_code.append(max_label_length * " " + "\t" + stripped_line)
 
         return "\n".join(formatted_code)
 
