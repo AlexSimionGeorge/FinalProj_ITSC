@@ -1,8 +1,6 @@
 import re
 from pprint import pprint
 
-from django.core.files.storage import memory
-
 abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
 def is_empty_string(s):
@@ -129,23 +127,39 @@ def _jal(labels, params):
     offset = params[1]
     if offset in labels:
         offset_in_bin = dec2bin_str(labels.index(offset), 20, 0)
+        offset_in_bin = offset_in_bin[::-1]
+        print(offset_in_bin)
     else:
         offset_in_bin = dec2bin_str(hex2dec(offset), 20, 0)
 
     rd_index = abi_names[params[0]]
     rd = dec2bin_str(rd_index, 11, 7)
-
-    return bin2dec(offset_in_bin[20]+ offset_in_bin[10:1-1:-1] + offset_in_bin[11] + offset_in_bin[19:12-1:-1] + rd + "11011" + "11")
+    
+    # print(offset_in_bin[19]+ offset_in_bin[9:0-1:-1] + offset_in_bin[10] + offset_in_bin[18:11-1:-1] + rd + "11011" + "11")
+    # print("OFFSET IN BIN: " + offset_in_bin)
+    # print("OFFSET IN BIN19: " + offset_in_bin[19])
+    # print("OFFSET IN BIN9:0: " + offset_in_bin[9::-1])
+    # print("OFFSET IN BIN10: " + offset_in_bin[10])
+    # print("OFFSET IN BIN18:11: " + offset_in_bin[18:10:-1])
+    # print("\n\n")
+    
+    # print(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
+    # a = bin2dec(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
+    # print(a)
+    return bin2dec(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
 
 def _jalr(labels, params):
     offset = params[2]
     if offset in labels:
         offset_in_bin = dec2bin_str(labels.index(offset), 31, 20)
+        offset_in_bin = offset_in_bin[::-1]
     else:
         offset_in_bin = dec2bin_str(hex2dec(offset), 31, 20)
 
     rs = dec2bin_str(abi_names[params[1]], 19, 15)
     rd = dec2bin_str(abi_names[params[0]], 11, 7)
+
+    #print(bin2dec(offset_in_bin[::-1] + rs + "000" + rd + "11001" + "11"))
 
     return bin2dec(offset_in_bin[::-1] + rs + "000" + rd + "11001" + "11")
 
@@ -369,7 +383,7 @@ if __name__ == "__main__":
             add t3, t1, t2             ; 7
             sw  t3, 0x0(t0)             ; 8
     loop:   beq t3, a0, end          ; 9
-            jal a0, loop               ; 10
+            jalr t0, a0, loop               ; 10
     end:    addi a7, zero, num1        ; 11
             ecall                      ; 12
     """
