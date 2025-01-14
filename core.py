@@ -381,7 +381,7 @@ def jal(rd, offset, mem, reg, mappingpc):
     return mem, reg
 
 ## Jump and link register (ADRESARE DIRECTA)
-def jalr(rd, rs1, offset, mem, reg, mappingpc):
+def jalr(rs1, offset, mem, reg, mappingpc):
     reg = jump_and_ra(reg[rs1] + extend_sign(offset, 12), reg, mappingpc)
     reg["R5"] = 0
     reg["R6"] = 0

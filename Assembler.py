@@ -127,12 +127,16 @@ def _3125offset_2420source_register_1915source_register_1412function_117offset_6
     if offset in labels:
         return 1/0 # TODO :)
     offset_in_bin = dec2bin_str(hex2dec(offset), 31, 20)
-    _3125offset = offset_in_bin[11:5 - 1 : -1]
+    offset_in_bin = offset_in_bin[::-1]
+    print("NUMAR:", offset_in_bin)
+    _3125offset = offset_in_bin[5:]
+    print("ASSEMBLER PRIMU:", _3125offset)
 
     _2420source_register = dec2bin_str(abi_names[params[0]], 24, 20)
     _1915source_register = dec2bin_str(abi_names[params[2]], 19, 15)
 
-    _117offset = offset_in_bin[4::-1]
+    _117offset = offset_in_bin[:5]
+    print("ASSEMBLER AL DOILEA:", _117offset)
     _10alignment = "11"
 
     return bin2dec(_3125offset + _2420source_register + _1915source_register + _1412function + _117offset + _62opcode + _10alignment)

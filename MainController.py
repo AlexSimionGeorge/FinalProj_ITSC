@@ -114,7 +114,7 @@ def main():
     _start: lw t1, 0x0(t0)         ; 5
             lw  t2, 0x0(t0)             ; 6
             add t3, t1, t2             ; 7
-            sw  t3, 0x5(t0)             ; 8
+            sw  t3, 0xFFF(t0)             ; 8
     loop:   beq t3, a0, end          ; 9
             jalr t0, a0, loop               ; 10
     end:    addi a7, zero, num1        ; 11
