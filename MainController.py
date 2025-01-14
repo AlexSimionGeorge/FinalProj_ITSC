@@ -24,18 +24,20 @@ def main():
         if previous_line_loc is not None:
             code_displayed_list[previous_line_loc].config(background="white")
 
-        #CALL BACK with data
-        # execute call here set the regs and all values
-
-        # set_row_column(memory_displayed_list, 0, 0, line_index)
-        # set_register(registers_displayed_list, line_index, 9)
-
         print("main controller", line_index)
         code_displayed_list[line_index].config(background="red")
 
         global mem
         global reg
         mem, reg = decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory)
+
+        for line in range(37):
+            for column in range(10):
+                set_row_column(memory_displayed_list, line, column, mem[(line, column)])
+
+        for i in range(32):
+            set_register(registers_displayed_list, i, list(reg.values())[i]) #poz value
+
         return line_index
 
     def create_scrollable_frame(parent, width, height):
