@@ -112,6 +112,42 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
 
 ##########################################
 
+def number_to_binary_string_32bit(number):
+    """
+    Converts a given integer or float to its 32-bit binary string representation.
+
+    :param number: The number to convert (int or float).
+    :return: 32-bit binary string representation of the number.
+    """
+    if isinstance(number, int):
+        # Convert integer to 32-bit binary representation
+        if number < 0:
+            number = (1 << 32) + number  # Handle negative numbers with 2's complement
+        binary_str = f'{number:032b}'  # Format as 32-bit binary
+        return binary_str
+    elif isinstance(number, float):
+        # Convert float to binary using 32-bit IEEE 754 representation (single precision)
+        import struct
+        packed = struct.pack('!f', number)  # Pack float into 4 bytes (big-endian single precision)
+        binary_str = ''.join(f'{byte:08b}' for byte in packed)  # Convert each byte to binary string
+        return binary_str
+    else:
+        raise TypeError("Input must be an integer or a float.")
+
+
+def binary_string_to_number(binary_str):
+    """
+    Converts a binary string to its integer or float representation.
+
+    :param binary_str: A string representing a binary number (e.g., "0101010").
+    :return: The corresponding integer or float number.
+    """
+    # Check if the input is valid
+    if not isinstance(binary_str, str) or not set(binary_str).issubset({'0', '1'}):
+        raise ValueError("Input must be a binary string containing only '0' and '1'.")
+
+    # Convert binary string to integer
+    return int(binary_str, 2)
 
 def unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address,
                                                                                                         instructioni):
@@ -124,8 +160,10 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
     _1915source_register = (instruction >> 15) & 0b11111
     _3120immediate_value = (instruction >> 20) & 0b111111111111
 
-    value = remove_trailing_zeros_and_revert(_3120immediate_value)
-    print("unpacker:", _3120immediate_value)
+    cod_bin = number_to_binary_string_32bit(instruction)
+
+    value = binary_string_to_number(cod_bin[:12])
+
 
     rs1 = [k for k, v in abi_names.items() if v == _1915source_register][0]
     rd = [k for k, v in abi_names.items() if v == _117destination_register][0]

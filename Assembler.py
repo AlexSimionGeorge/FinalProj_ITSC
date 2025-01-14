@@ -1,6 +1,6 @@
 import re
 
-abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'pc': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
+abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'pc': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
 def is_empty_string(s):
     return not any(c.isprintable() and not c.isspace() for c in s)
@@ -47,7 +47,9 @@ def _3120immediate_1915source_register_1412function_117destination_register_62op
     # addi, slti, sltiu, xori, ori, andi
     imm = params[2]
     imm_dec = hex2dec(imm)
+
     _3120immediate = dec2bin_str(imm_dec, 31, 20)
+    print("ADI_________ IMM hex:", imm, "bin:", _3120immediate)
 
     rs_index = abi_names[params[1]]
     _1915source_register = dec2bin_str(rs_index, 19, 15)
@@ -59,7 +61,9 @@ def _3120immediate_1915source_register_1412function_117destination_register_62op
 
     _62opcode = opcode
     _10alignment = "11"
-    return bin2dec(_3120immediate[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
+
+    print("PLEACA___________",_3120immediate + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
+    return bin2dec(_3120immediate + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
 def _3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, function, opcode, _3127opcode, _2625control_bits):
     #slli, srli, srai
@@ -128,15 +132,13 @@ def _3125offset_2420source_register_1915source_register_1412function_117offset_6
         return 1/0 # TODO :)
     offset_in_bin = dec2bin_str(hex2dec(offset), 31, 20)
     offset_in_bin = offset_in_bin[::-1]
-    print("NUMAR:", offset_in_bin)
     _3125offset = offset_in_bin[5:]
-    print("ASSEMBLER PRIMU:", _3125offset)
+
 
     _2420source_register = dec2bin_str(abi_names[params[0]], 24, 20)
     _1915source_register = dec2bin_str(abi_names[params[2]], 19, 15)
 
     _117offset = offset_in_bin[:5]
-    print("ASSEMBLER AL DOILEA:", _117offset)
     _10alignment = "11"
 
     return bin2dec(_3125offset + _2420source_register + _1915source_register + _1412function + _117offset + _62opcode + _10alignment)
@@ -410,38 +412,43 @@ def assemble_code(code, memory, reg):
 
 
 if __name__ == "__main__":
-    mock_code = """.data                ; 0
-vector:     .word 0x5               ; 1
-vector1:    .word 0x6               ; 2
-vector2:    .word 0x7               ; 3
-vector3:    .word 0x8               ; 4
-.code                ; 5
-_start:     lw s0, vector           ; 6
-            addi s1, s1, 0x4        ; 7
+    mock_code = """.data           ; 0
+vector:     .word 0x5                    ;1
+vector1:    .word 0x6			;2
+vector2:    .word 0x7			;3
+vector3:    .word 0x8                   ;4   
+.code           ; 5
+_start:addi s0, s0, 0x28	   					;6
+     addi t0, t0, vector               ; Load address of vector into t0       ; 7
+    lw t0, 0x0(s0)						;8
+    addi s1, s1, 0x4						;9
+    addi s6, s6, 0x1                    ; Number of elements in the vector     ; 10
+;11
+parse_vector: beq s1, zero, process_done  ; If all elements are parsed, exit     ; 12
+    lw t4, 0x0(s0)                ; Load current element from vector     ; 13
+    addi t4, t4, 0xA             ; Add 10 to the current element        ; 14
+    ; Check if the element is odd or even				;15
+    andi s2, t4, 0x1              ; Check the least significant bit      ;16
+    beq s2, zero, push_even     ; If 0, the number is even             ; 17
+    ori s2, s2, 0x1                    ; Set t5 to 1 for odd                  ; 18
+    jal ra, push_to_stack             ; Jump to push onto the stack          ; 19
+push_even: andi s2, s2, 0x0                    ; Set t5 to 0 for even                 ; 20
+push_to_stack: push s2                                                        ;21
+    ; Move to the next element in the vector					;22
+    lw t4, 0x0(s0)								;23
+    sub t4, t4, s0								;24
+    sw t4, 0x0(s0)            ; Move to the next element             ; 25
+    addi s1, s1, 0xFFFFFFFF             ; Decrease the loop counter            ; 26
+    jal ra, parse_vector              ; Loop back to parse_vector            ; 27
+process_done:pop t1								;28
+    pop t2									;29
+    pop t3									;30
+    addi t0, t0, 0xFFFFFF01    							;31
+    sw   t0, 0x10(zero)  									;32
+program_end: lb a7, 0x10(zero)              ; Exit code for ecall           ; 33
+    ecall                       ; Exit program    				;34"""
 
-parse_vector: beq s1, zero, process_done ; 9
-            lw t4, 0x0(s0)          ; 10
-            addi t4, t4, 0xA        ; 11
-            ; Check if the element is odd or even
-            andi s2, t4, 0x1        ; 13
-            beq s2, zero, push_even ; 14
-            ori s2, s2, 0x1         ; 15
-            jal push_to_stack       ; 16
-push_even:  andi s2, s2, 0x0        ; 17
-push_to_stack: push s2              ; 18
-            # Move to the next element in the vector
-            lw t4, 0x0(s0)          ; 20
-            sub t4, t4, 0x0         ; 21
-            sw t4, 0x0(s0)          ; 22
-            addi s1, s1, 0xFFFFFFFF ; 23
-            jal ra, parse_vector    ; 24
-process_done: pop t1                ; 25
-            pop t2                  ; 26
-            pop t3                  ; 27
-program_end:                        ; 28
-            lb a7, 0xFFFFFF01       ; 29
-            ecall                   ; 30"""
-
+    regu = {f"x{i}": 0 for i in range(32)}
     mem = {(line, column): 0 for line in range(37) for column in range(10)}
-    mem, dictionary = assemble_code(mock_code, mem)
+    regu, mem, initial_index_mapped_to_memory = assemble_code(mock_code, mem, regu)
     # pprint(dictionary)
