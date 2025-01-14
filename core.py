@@ -15,10 +15,10 @@ def return_address_to_pc(reg, mappingpc):
     reg[pc] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory)]
     return reg
 
-def jump_and_ra(offset, reg, mappingpc):
+def jump_and_ra(rd, offset, reg, mappingpc):
     index_in_memory_ra = mappingpc[reg[pc]]
     index_in_memory_ra += 1
-    reg[ra] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory_ra)]
+    reg[rd] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory_ra)]
     reg[pc] = offset
     return reg
 
@@ -270,13 +270,13 @@ def ebreak(mem, reg, mappingpc):
 
 def ret(mem, reg, mappingpc):
     reg = return_address_to_pc(reg, mappingpc)
-    reg["R5"] = 0
-    reg["R6"] = 0
-    reg["R7"] = 0
-    reg["R28"] = 0
-    reg["R29"] = 0
-    reg["R30"] = 0
-    reg["R31"] = 0
+    reg["x5"] = 0
+    reg["x6"] = 0
+    reg["x7"] = 0
+    reg["x28"] = 0
+    reg["x29"] = 0
+    reg["x30"] = 0
+    reg["x31"] = 0
     return mem, reg
 
 def uret(mem, reg, mappingpc):
@@ -370,26 +370,26 @@ def sw(rs2, offset, rs1, mem, reg, mappingpc):
 
 ## Jump and link (ADRESARE DIRECTA)
 def jal(rd, offset, mem, reg, mappingpc):
-    reg = jump_and_ra(extend_sign(offset, 20), reg, mappingpc)
-    reg["R5"] = 0
-    reg["R6"] = 0
-    reg["R7"] = 0
-    reg["R28"] = 0
-    reg["R29"] = 0
-    reg["R30"] = 0
-    reg["R31"] = 0
+    reg = jump_and_ra(rd, extend_sign(offset, 20), reg, mappingpc)
+    reg["x5"] = 0
+    reg["x6"] = 0
+    reg["x7"] = 0
+    reg["x28"] = 0
+    reg["x29"] = 0
+    reg["x30"] = 0
+    reg["x31"] = 0
     return mem, reg
 
 ## Jump and link register (ADRESARE DIRECTA)
-def jalr(rs1, offset, mem, reg, mappingpc):
-    reg = jump_and_ra(reg[rs1] + extend_sign(offset, 12), reg, mappingpc)
-    reg["R5"] = 0
-    reg["R6"] = 0
-    reg["R7"] = 0
-    reg["R28"] = 0
-    reg["R29"] = 0
-    reg["R30"] = 0
-    reg["R31"] = 0
+def jalr(rd, rs1, offset, mem, reg, mappingpc):
+    reg = jump_and_ra(rd, reg[rs1] + extend_sign(offset, 12), reg, mappingpc)
+    reg["x5"] = 0
+    reg["x6"] = 0
+    reg["x7"] = 0
+    reg["x28"] = 0
+    reg["x29"] = 0
+    reg["x30"] = 0
+    reg["x31"] = 0
     return mem, reg
 
 ## take branch if rs1 == rs2 (ADRESARE DIRECTA)

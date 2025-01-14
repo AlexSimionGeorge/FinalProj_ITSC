@@ -709,7 +709,14 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
                     decoded["offset"],
                 ]
 
-            elif opcode_bin in {"1100111", "1101111"}:  # JALR, JAL
+            elif opcode_bin == "1100111":  # JALR
+                execution_args = [
+                    f"x{abi_names[decoded['rd']]}",
+                    f"x{abi_names[decoded['rs1']]}",
+                    decoded["immediate"],
+                ]
+                
+            elif opcode_bin == "1101111":  # JAL
                 execution_args = [
                     f"x{abi_names[decoded['rd']]}",
                     decoded["immediate"],
