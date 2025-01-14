@@ -1,7 +1,8 @@
 
-pc = "x3"
-sp = "x2" 
+zero = "x0"
 ra = "x1"
+sp = "x2" 
+pc = "x3"
 
 def increment_pc(reg, mappingpc):
     index_in_memory = mappingpc[reg[pc]]
@@ -200,7 +201,7 @@ def ori(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## CSR Read and Write ##
 def csrrw(rd, csr, rs1, mem, reg, mappingpc):
-    if rd != "R0":
+    if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = reg[rs1]
@@ -210,7 +211,7 @@ def csrrw(rd, csr, rs1, mem, reg, mappingpc):
 
 ## CSR Read and Set bits in CSR  
 def csrrs(rd, csr, rs1, mem, reg, mappingpc):
-    if rd != "R0":
+    if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = reg[rs1] or reg[rd]
@@ -220,7 +221,7 @@ def csrrs(rd, csr, rs1, mem, reg, mappingpc):
 
 ## CSR Read and clear bits in CSR  
 def csrrc(rd, csr, rs1, mem, reg, mappingpc):
-    if rd != "R0":
+    if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = reg[rs1] and not(reg[rd])
@@ -230,7 +231,7 @@ def csrrc(rd, csr, rs1, mem, reg, mappingpc):
 
 ## CSR Read and Write immediate  
 def csrrwi(rd, csr, uimm, mem, reg, mappingpc):
-    if rd != "R0":
+    if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = uimm and 0x0000001F
@@ -240,7 +241,7 @@ def csrrwi(rd, csr, uimm, mem, reg, mappingpc):
 
 ## CSR Read and Set bits immediate in CSR  
 def csrrsi(rd, csr, uimm, mem, reg, mappingpc):
-    if rd != "R0":
+    if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = (uimm and 0x0000001F) or reg[rd]
@@ -250,7 +251,7 @@ def csrrsi(rd, csr, uimm, mem, reg, mappingpc):
 
 ## CSR Read and clear bits immediate in CSR  
 def csrrci(rd, csr, uimm, mem, reg, mappingpc):
-    if rd != "R0":
+    if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = (uimm and 0x0000001F) and not(reg[rd])
@@ -269,7 +270,6 @@ def ebreak(mem, reg, mappingpc):
 
 def ret(mem, reg, mappingpc):
     reg = return_address_to_pc(reg, mappingpc)
-    reg[pc] = reg["R1"]
     reg["R5"] = 0
     reg["R6"] = 0
     reg["R7"] = 0
