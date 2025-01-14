@@ -106,20 +106,7 @@ def main():
                 previous_line = execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line)
                 current_line = reg['x3'] # adc PC care  a fost modificat
 
-        # code = input_code.get(1.0, tk.END)
-        code = """.data           ; 0
-    num1:   .word 0x5              ; 1
-    num2:   .word 0x10             ; 2
-    result: .word 0x0              ; 3
-    .code                      ; 4
-    _start: lw t1, 0x0(t0)         ; 5
-            lw  t2, 0x0(t0)             ; 6
-            add t3, t1, t2             ; 7
-            sw  t3, 0x21(t0)             ; 8
-    loop:   beq t3, a0, end          ; 9
-            jalr t0, a0, loop               ; 10
-    end:    addi a7, zero, num1        ; 11
-            ecall                      ; 12"""
+        code = input_code.get(1.0, tk.END)
 
         code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
         code = process_lines(code)

@@ -410,20 +410,37 @@ def assemble_code(code, memory, reg):
 
 
 if __name__ == "__main__":
-    mock_code = """.data           ; 0
-    num1:   .word 0x5              ; 1
-    num2:   .word 0x10             ; 2
-    result: .word 0x0              ; 3
-    .code                      ; 4
-    _start: lw t1, 0x0(t0)         ; 5
-            lw  t2, 0x0(t0)             ; 6
-            add t3, t1, t2             ; 7
-            sw  t3, 0x0(t0)             ; 8
-    loop:   beq t3, a0, end          ; 9
-            jalr t0, a0, loop               ; 10
-    end:    addi a7, zero, num1        ; 11
-            ecall                      ; 12
-    """
+    mock_code = """.data                ; 0
+vector:     .word 0x5               ; 1
+vector1:    .word 0x6               ; 2
+vector2:    .word 0x7               ; 3
+vector3:    .word 0x8               ; 4
+.code                ; 5
+_start:     lw s0, vector           ; 6
+            addi s1, s1, 0x4        ; 7
+
+parse_vector: beq s1, zero, process_done ; 9
+            lw t4, 0x0(s0)          ; 10
+            addi t4, t4, 0xA        ; 11
+            ; Check if the element is odd or even
+            andi s2, t4, 0x1        ; 13
+            beq s2, zero, push_even ; 14
+            ori s2, s2, 0x1         ; 15
+            jal push_to_stack       ; 16
+push_even:  andi s2, s2, 0x0        ; 17
+push_to_stack: push s2              ; 18
+            # Move to the next element in the vector
+            lw t4, 0x0(s0)          ; 20
+            sub t4, t4, 0x0         ; 21
+            sw t4, 0x0(s0)          ; 22
+            addi s1, s1, 0xFFFFFFFF ; 23
+            jal ra, parse_vector    ; 24
+process_done: pop t1                ; 25
+            pop t2                  ; 26
+            pop t3                  ; 27
+program_end:                        ; 28
+            lb a7, 0xFFFFFF01       ; 29
+            ecall                   ; 30"""
 
     mem = {(line, column): 0 for line in range(37) for column in range(10)}
     mem, dictionary = assemble_code(mock_code, mem)
