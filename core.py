@@ -8,6 +8,7 @@ def increment_pc(reg, mappingpc):
     index_in_memory = mappingpc[reg[pc]]
     index_in_memory += 1
     reg[pc] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory)]
+    print("core.py: test")
     return reg
 
 def return_address_to_pc(reg, mappingpc):
@@ -143,7 +144,10 @@ def sll(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Shift left logical immediate
 def slli(rd, rs1, shamt, mem, reg, mappingpc):
-    reg[rd] = reg[rs1] << shamt
+    print("INAINTE")
+    print(type(int(shamt)), rd, rs1,)
+    reg[rd] = reg[rs1] << int(shamt)
+    print("DUPA")
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -187,7 +191,9 @@ def seq(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## AND immediate ##
 def andi(rd, rs1, immediate_value, mem, reg, mappingpc):
-    reg[rd] = reg[rs1] & extend_sign(immediate_value, 12)
+    print("ANDI:", rd, rs1, immediate_value)
+    print("TIP ANDI:", type(rd), type(rs1), type(immediate_value))
+    reg[rd] = reg[rs1] & extend_sign(int(immediate_value), 12)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
