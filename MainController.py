@@ -5,10 +5,10 @@ from unpacker import decode_and_execute_instruction
 current_line = 0
 previous_line = None
 initial_index_mapped_to_memory = dict()
-mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
-###register directory + memory directory###
+mem = {(line, column): 0 for line in range(37) for column in range(10)}
 reg = {f"x{i}": 0 for i in range(32)}
+
 abi_names_display = list(abi_names.keys())
 
 def main():
@@ -16,15 +16,13 @@ def main():
         memory_displayed_list[row][col].delete(0,tk.END)
         memory_displayed_list[row][col].insert(0, f"{val:5d}")
 
+
     def set_register(registers_displayed_list, x, val):
         registers_displayed_list[x].config(text=abi_names_display[x] + ": " + str(val))
 
     def execute_line_i(line_index, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line_loc):
-        global initial_index_mapped_to_memory
-        frontend_indexes = list(initial_index_mapped_to_memory.keys())
-
         if previous_line_loc is not None:
-            code_displayed_list[frontend_indexes[previous_line_loc]].config(background="white")
+            code_displayed_list[previous_line_loc].config(background="white")
 
         #CALL BACK with data
         # execute call here set the regs and all values
@@ -32,12 +30,12 @@ def main():
         # set_row_column(memory_displayed_list, 0, 0, line_index)
         # set_register(registers_displayed_list, line_index, 9)
 
-        code_displayed_list[frontend_indexes[line_index]].config(background="red")
+        print("main controller", line_index)
+        code_displayed_list[line_index].config(background="red")
 
         global mem
         global reg
-        mem, reg = decode_and_execute_instruction(mem, reg)
-
+        mem, reg = decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory)
 
         return line_index
 
@@ -103,11 +101,25 @@ def main():
             global initial_index_mapped_to_memory
             global previous_line
             if current_line < len(initial_index_mapped_to_memory.keys()):
-                print("current_line:", current_line, "prev line:", previous_line)
+                # print("current_line:", current_line, "prev line:", previous_line)
                 previous_line = execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line)
                 current_line = reg['x3'] # adc PC care  a fost modificat
 
-        code = input_code.get(1.0, tk.END)
+        # code = input_code.get(1.0, tk.END)
+        code = """.data           ; 0
+    num1:   .word 0x5              ; 1
+    num2:   .word 0x10             ; 2
+    result: .word 0x0              ; 3
+    .code                      ; 4
+    _start: lw t1, 0x0(t0)         ; 5
+            lw  t2, 0x0(t0)             ; 6
+            add t3, t1, t2             ; 7
+            sw  t3, 0x5(t0)             ; 8
+    loop:   beq t3, a0, end          ; 9
+            jalr t0, a0, loop               ; 10
+    end:    addi a7, zero, num1        ; 11
+            ecall                      ; 12"""
+
         code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
         code = process_lines(code)
         code = format_assembly_code(code)
