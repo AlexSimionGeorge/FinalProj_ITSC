@@ -1,148 +1,165 @@
 import unittest
 
-reg = {f"R{i}": 0 for i in range(32)}
-mem = {(line, column): 0 for line in range(37) for column in range(10)}
+def extend_sign(value, bits):
+    """Extend sign for a given value and bit width."""
+    sign_bit = 1 << (bits - 1)
+    return (value & (sign_bit - 1)) - (value & sign_bit)
 
-gp = "R3"
-sp = "R2"
-reg[gp] = 0
-reg[sp] = 369
+def cell2address(address):
+    """Map address directly to memory index."""
+    return address % len(mem)
 
-def extend_sign(value, bits=12):
-    mask = (1 << bits) - 1
-    if value & (1 << (bits - 1)):
-        return value | ~mask
-    return value & mask
+def increment_pc(reg, mappingpc):
+    """Increment the program counter."""
+    reg[mappingpc] += 1
+    return reg
 
-def signed2unsigned(value):
-    return value & 0xFFFFFFFF
+## Load an 8-bit value from memory (sign-extended)
+def lb(rd, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[addr]
+    reg[rd] = extend_sign(temp & 0xFF, 8)
+    reg = increment_pc(reg, mappingpc)
+    print(f"LB: {rd} = {reg[rd]}")
+    return mem, reg
 
-def jal(rd, offset):
-    reg[rd] = reg[gp] + 1
-    reg[gp] += offset
-    reg["R5"] = reg["R6"] = reg["R7"] = reg["R28"] = reg["R29"] = reg["R30"] = reg["R31"] = 0
+## Load a 16-bit value from memory (sign-extended)
+def lh(rd, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[addr] | (mem[addr + 1] << 8)
+    reg[rd] = extend_sign(temp & 0xFFFF, 16)
+    reg = increment_pc(reg, mappingpc)
+    print(f"LH: {rd} = {reg[rd]}")
+    return mem, reg
 
-def jalr(rd, rs1, offset):
-    reg[rd] = reg[gp] + 1
-    reg[gp] = (reg[rs1] + extend_sign(offset, 12)) & ~1
-    reg["R5"] = reg["R6"] = reg["R7"] = reg["R28"] = reg["R29"] = reg["R30"] = reg["R31"] = 0
+## Load a 32-bit value from memory
+def lw(rd, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    temp = (
+        mem[addr]
+        | (mem[addr + 1] << 8)
+        | (mem[addr + 2] << 16)
+        | (mem[addr + 3] << 24)
+    )
+    reg[rd] = temp
+    reg = increment_pc(reg, mappingpc)
+    print(f"LW: {rd} = {reg[rd]}")
+    return mem, reg
 
-def beq(rs1, rs2, offset):
-    if reg[rs1] == reg[rs2]:
-        reg[gp] += extend_sign(offset)
-    else:
-        reg[gp] += 1
+## Load an 8-bit value from memory (zero-extended)
+def lbu(rd, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    reg[rd] = mem[addr] & 0xFF
+    reg = increment_pc(reg, mappingpc)
+    print(f"LBU: {rd} = {reg[rd]}")
+    return mem, reg
 
-def bne(rs1, rs2, offset):
-    if reg[rs1] != reg[rs2]:
-        reg[gp] += extend_sign(offset)
-    else:
-        reg[gp] += 1
+## Load a 16-bit value from memory (zero-extended)
+def lhu(rd, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    temp = mem[addr] | (mem[addr + 1] << 8)
+    reg[rd] = temp & 0xFFFF
+    reg = increment_pc(reg, mappingpc)
+    print(f"LHU: {rd} = {reg[rd]}")
+    return mem, reg
 
-def blt(rs1, rs2, offset):
-    if reg[rs1] < reg[rs2]:
-        reg[gp] += extend_sign(offset)
-    else:
-        reg[gp] += 1
+## Store an 8-bit value in memory
+def sb(rs2, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    mem[addr] = reg[rs2] & 0xFF
+    reg = increment_pc(reg, mappingpc)
+    print(f"SB: mem[{addr}] = {mem[addr]}")
+    return mem, reg
 
-def bge(rs1, rs2, offset):
-    if reg[rs1] >= reg[rs2]:
-        reg[gp] += extend_sign(offset)
-    else:
-        reg[gp] += 1
+## Store a 16-bit value in memory
+def sh(rs2, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    mem[addr] = reg[rs2] & 0xFF
+    mem[addr + 1] = (reg[rs2] >> 8) & 0xFF
+    reg = increment_pc(reg, mappingpc)
+    print(f"SH: mem[{addr}] = {mem[addr]} | mem[{addr + 1}] = {mem[addr + 1]}")
+    return mem, reg
 
-def bltu(rs1, rs2, offset):
-    if signed2unsigned(reg[rs1]) < signed2unsigned(reg[rs2]):
-        reg[gp] += extend_sign(offset)
-    else:
-        reg[gp] += 1
+## Store a 32-bit value in memory
+def sw(rs2, offset, rs1, mem, reg, mappingpc):
+    addr = cell2address(reg[rs1] + extend_sign(offset, 12))
+    mem[addr] = reg[rs2] & 0xFF
+    mem[addr + 1] = (reg[rs2] >> 8) & 0xFF
+    mem[addr + 2] = (reg[rs2] >> 16) & 0xFF
+    mem[addr + 3] = (reg[rs2] >> 24) & 0xFF
+    reg = increment_pc(reg, mappingpc)
+    print(f"SW: mem[{addr}] = {reg[rs2]}")
+    return mem, reg
 
-def bgeu(rs1, rs2, offset):
-    if signed2unsigned(reg[rs1]) >= signed2unsigned(reg[rs2]):
-        reg[gp] += extend_sign(offset)
-    else:
-        reg[gp] += 1
-
-class TestRiscVInstructions(unittest.TestCase):
+## Unit tests
+class TestMemoryInstructions(unittest.TestCase):
 
     def setUp(self):
-        global reg, gp, sp
+        global reg, mem, gp, sp, mappingpc
         reg = {f"R{i}": 0 for i in range(32)}
+        mem = [0] * 1024  # Linear memory of 1024 bytes
         gp = "R3"
         sp = "R2"
+        mappingpc = gp  # Assume GP as the program counter for simplicity
         reg[gp] = 0
         reg[sp] = 369
 
-    def test_jal(self):
-        jal("R1", 4)
-        self.assertEqual(reg["R1"], 1)
-        self.assertEqual(reg[gp], 4)
+    def test_lb(self):
+        mem[25] = 0x81  # Memory contains a signed 8-bit value
+        reg["R1"] = 35
+        lb("R4", -10, "R1", mem, reg, gp)
+        self.assertEqual(reg["R4"], -127)
 
-    def test_jalr(self):
-        reg["gp"] = 0
-        reg["R1"] = 100
-        jalr("R3", "R1", 8)
-        self.assertEqual(reg["R3"], 108)
+    def test_lh(self):
+        mem[25] = 0x01
+        mem[26] = 0x80  # Memory contains a signed 16-bit value
+        reg["R1"] = 35
+        lh("R4", -10, "R1", mem, reg, gp)
+        self.assertEqual(reg["R4"], -32767)
 
-    def test_beq(self):
-        reg["R1"] = 10
-        reg["R2"] = 10
-        beq("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
-        reg[gp] = 0
-        reg["R2"] = 5
-        beq("R1", "R2", 4)
-        self.assertEqual(reg[gp], 1)
+    def test_lw(self):
+        mem[25] = 0xEF
+        mem[26] = 0xCD
+        mem[27] = 0xAB
+        mem[28] = 0x89  # Memory contains a 32-bit value
+        reg["R1"] = 35
+        lw("R4", -10, "R1", mem, reg, gp)
+        self.assertEqual(reg["R4"], 0x89ABCDEF)
 
-    def test_bne(self):
-        reg["R1"] = 10
-        reg["R2"] = 5
-        bne("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
-        reg[gp] = 0
-        reg["R2"] = 10
-        bne("R1", "R2", 4)
-        self.assertEqual(reg[gp], 1)
+    def test_lbu(self):
+        mem[25] = 0xFF  # Memory contains an unsigned 8-bit value
+        reg["R1"] = 35
+        lbu("R4", -10, "R1", mem, reg, gp)
+        self.assertEqual(reg["R4"], 255)
 
-    def test_blt(self):
-        reg["R1"] = 5
-        reg["R2"] = 10
-        blt("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
-        reg[gp] = 0
-        reg["R2"] = 5
-        blt("R1", "R2", 4)
-        self.assertEqual(reg[gp], 1)
+    def test_lhu(self):
+        mem[25] = 0xFF
+        mem[26] = 0xFF  # Memory contains an unsigned 16-bit value
+        reg["R1"] = 35
+        lhu("R4", -10, "R1", mem, reg, gp)
+        self.assertEqual(reg["R4"], 65535)
 
-    def test_bge(self):
-        reg["R1"] = 10
-        reg["R2"] = 5
-        bge("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
-        reg[gp] = 0
-        reg["R2"] = 10
-        bge("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
+    def test_sb(self):
+        reg["R2"] = 0xAB
+        reg["R1"] = 35
+        sb("R2", -10, "R1", mem, reg, gp)
+        self.assertEqual(mem[25], 0xAB)
 
-    def test_bltu(self):
-        reg["R1"] = 5
-        reg["R2"] = 10
-        bltu("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
-        reg[gp] = 0
-        reg["R2"] = 5
-        bltu("R1", "R2", 4)
-        self.assertEqual(reg[gp], 1)
+    def test_sh(self):
+        reg["R2"] = 0x1234
+        reg["R1"] = 35
+        sh("R2", -10, "R1", mem, reg, gp)
+        self.assertEqual(mem[25], 0x34)
+        self.assertEqual(mem[26], 0x12)
 
-    def test_bgeu(self):
-        reg["R1"] = 10
-        reg["R2"] = 5
-        bgeu("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
-        reg[gp] = 0
-        reg["R2"] = 10
-        bgeu("R1", "R2", 4)
-        self.assertEqual(reg[gp], 4)
+    def test_sw(self):
+        reg["R2"] = 0xDEADBEEF
+        reg["R1"] = 35
+        sw("R2", -10, "R1", mem, reg, gp)
+        self.assertEqual(mem[25], 0xEF)
+        self.assertEqual(mem[26], 0xBE)
+        self.assertEqual(mem[27], 0xAD)
+        self.assertEqual(mem[28], 0xDE)
 
 if __name__ == "__main__":
     unittest.main()
