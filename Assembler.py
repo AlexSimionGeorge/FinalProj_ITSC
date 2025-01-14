@@ -41,6 +41,8 @@ def _3112immediate_117destination_register_62opcode_10alignment(params, opcode):
     _62opcode = opcode
     _10alignment = "11"
 
+    print(_3127immediate[31:12-1:-1] + _117destinationRegister + _62opcode + _10alignment)
+
     return  bin2dec(_3127immediate[31:12-1:-1] + _117destinationRegister + _62opcode + _10alignment)
 
 def _3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, function, opcode):
@@ -118,11 +120,16 @@ def _3120offset_1915source_register_1412function_117destination_register_62opcod
     offset = params[1]
     if offset in labels:
         return 1/0 # TODO :)
+    print(offset)
     _3120offset = dec2bin_str(hex2dec(offset), 31, 20)
+
+    print("ASTA MA INTERESEAZA: ", _3120offset)
 
     _1915source_register = dec2bin_str(abi_names[params[2]], 19, 15)
     _117destination_register = dec2bin_str(abi_names[params[0]], 11, 7)
     _10alignment = "11"
+
+    print(_3120offset[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
     return bin2dec(_3120offset[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
@@ -188,9 +195,10 @@ def b_3125offset_2420source_register_1915source_register_1412function_117offset_
     offset = params[2]
     if offset in labels:
         offset_in_bin = dec2bin_str(labels.index(offset), 12, 0)
+
     else:
         offset_in_bin = dec2bin_str(hex2dec(offset), 12, 0)
-        
+    
     offset_in_bin = offset_in_bin[::-1]
 
     rs2 = dec2bin_str(abi_names[params[1]], 24, 20)
@@ -403,6 +411,7 @@ def assemble_code(code, memory, reg):
 
     print("instructions not founded/erred:",not_found_instr)
     print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
+    print("init" , initial_index_mapped_to_memory)
 
     first_adr = list(initial_index_mapped_to_memory.keys())[0]
     reg['x3'] = first_adr
@@ -413,25 +422,25 @@ def assemble_code(code, memory, reg):
 
 if __name__ == "__main__":
     mock_code = """.data           ; 0
-vector:     .word 0x5                    ;1
+vector:     .word 0x5               ;1
 vector1:    .word 0x6			;2
 vector2:    .word 0x7			;3
-vector3:    .word 0x8                   ;4   
+vector3:    .word 0x8             ;4   
 .code           ; 5
-_start:addi s0, s0, 0x28	   					;6
-     addi t0, t0, vector               ; Load address of vector into t0       ; 7
-    lw t0, 0x0(s0)						;8
-    addi s1, s1, 0x4						;9
-    addi s6, s6, 0x1                    ; Number of elements in the vector     ; 10
+_start:addi s0, s0, 0x28	   		;6
+     addi t0, t0, vector             ; 7
+    lw t0, 0x0(s0)				    ;8
+    addi s1, s1, 0x4				;9
+    addi s6, s6, 0x1                ; 10
 ;11
-parse_vector: beq s1, zero, process_done  ; If all elements are parsed, exit     ; 12
-    lw t4, 0x0(s0)                ; Load current element from vector     ; 13
-    addi t4, t4, 0xA             ; Add 10 to the current element        ; 14
-    ; Check if the element is odd or even				;15
-    andi s2, t4, 0x1              ; Check the least significant bit      ;16
-    beq s2, zero, push_even     ; If 0, the number is even             ; 17
-    ori s2, s2, 0x1                    ; Set t5 to 1 for odd                  ; 18
-    jal ra, push_to_stack             ; Jump to push onto the stack          ; 19
+parse_vector: beq s1, zero, process_done   ; 12
+    lw t4, 0x0(s0)                ; 13
+    addi t4, t4, 0xA              ; 14
+    ; Check if the element is odd or even	;15
+    andi s2, t4, 0x1              ;16
+    beq s2, zero, push_even      ; 17
+    ori s2, s2, 0x1                    ; 18
+    jal ra, push_to_stack              ; 19
 push_even: andi s2, s2, 0x0                    ; Set t5 to 0 for even                 ; 20
 push_to_stack: push s2                                                        ;21
     ; Move to the next element in the vector					;22

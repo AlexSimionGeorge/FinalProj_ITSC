@@ -6,6 +6,45 @@ from Assembler import abi_names
 gp = "gp"
 
 
+
+def number_to_binary_string_32bit(number):
+    """
+    Converts a given integer or float to its 32-bit binary string representation.
+
+    :param number: The number to convert (int or float).
+    :return: 32-bit binary string representation of the number.
+    """
+    if isinstance(number, int):
+        # Convert integer to 32-bit binary representation
+        if number < 0:
+            number = (1 << 32) + number  # Handle negative numbers with 2's complement
+        binary_str = f'{number:032b}'  # Format as 32-bit binary
+        return binary_str
+    elif isinstance(number, float):
+        # Convert float to binary using 32-bit IEEE 754 representation (single precision)
+        import struct
+        packed = struct.pack('!f', number)  # Pack float into 4 bytes (big-endian single precision)
+        binary_str = ''.join(f'{byte:08b}' for byte in packed)  # Convert each byte to binary string
+        return binary_str
+    else:
+        raise TypeError("Input must be an integer or a float.")
+
+
+def binary_string_to_number(binary_str):
+    """
+    Converts a binary string to its integer or float representation.
+
+    :param binary_str: A string representing a binary number (e.g., "0101010").
+    :return: The corresponding integer or float number.
+    """
+    # Check if the input is valid
+    if not isinstance(binary_str, str) or not set(binary_str).issubset({'0', '1'}):
+        raise ValueError("Input must be a binary string containing only '0' and '1'.")
+
+    # Convert binary string to integer
+    return int(binary_str, 2)
+
+
 def nr_to_tuple(nr):
     return nr // 10, nr % 10
 
@@ -53,13 +92,15 @@ def print_bin(binary_input):
 
 
 ##########################################
-## 3758097335 => lui t2, x7 ##
+## 3758097335 => lui t2, 0x7 ##
 ## 1342178711 => auipc a1, 0xA ##
 ##########################################
 
 
 def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, address, instructioni):
     instruction = mem[nr_to_tuple(address)]
+
+    print("Unpacker.py: auipc, lui:", number_to_binary_string_32bit(instruction))
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -83,7 +124,7 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
         instruction_name = "Unknown opcode"
 
     decoded_instruction = {
-        "immediate_value": value,
+        "immediate_value": int(value),
         "destination_register": rd,
         "opcode": f"{_62opcode:05b}",
         "alignment": f"{_10alignment:02b}",
@@ -112,42 +153,7 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
 
 ##########################################
 
-def number_to_binary_string_32bit(number):
-    """
-    Converts a given integer or float to its 32-bit binary string representation.
 
-    :param number: The number to convert (int or float).
-    :return: 32-bit binary string representation of the number.
-    """
-    if isinstance(number, int):
-        # Convert integer to 32-bit binary representation
-        if number < 0:
-            number = (1 << 32) + number  # Handle negative numbers with 2's complement
-        binary_str = f'{number:032b}'  # Format as 32-bit binary
-        return binary_str
-    elif isinstance(number, float):
-        # Convert float to binary using 32-bit IEEE 754 representation (single precision)
-        import struct
-        packed = struct.pack('!f', number)  # Pack float into 4 bytes (big-endian single precision)
-        binary_str = ''.join(f'{byte:08b}' for byte in packed)  # Convert each byte to binary string
-        return binary_str
-    else:
-        raise TypeError("Input must be an integer or a float.")
-
-
-def binary_string_to_number(binary_str):
-    """
-    Converts a binary string to its integer or float representation.
-
-    :param binary_str: A string representing a binary number (e.g., "0101010").
-    :return: The corresponding integer or float number.
-    """
-    # Check if the input is valid
-    if not isinstance(binary_str, str) or not set(binary_str).issubset({'0', '1'}):
-        raise ValueError("Input must be a binary string containing only '0' and '1'.")
-
-    # Convert binary string to integer
-    return int(binary_str, 2)
 
 def unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address,
                                                                                                         instructioni):
@@ -195,7 +201,7 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
         instruction_name = "Unknown opcode"
 
     decoded_instruction = {
-        "immediate_value": f"{value}",
+        "immediate_value": int(value),
         "source_register_1": rs1,
         "function": f"{_1412function:03b}",
         "destination_register": rd,
@@ -269,13 +275,13 @@ def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412functi
     decoded_instruction = {
         "opcode_higher": f"{_3127opcode:05b}",
         "control_bits": f"{_2625control_bits:02b}",
-        "shamt_value": f"{_2420shamt}",
-        "source_register_1": f"{rs1}",
+        "immediate_value": int(_2420shamt),
+        "source_register_1": rs1,
         "function": f"{_1412function:03b}",
-        "destination_register": f"{rd}",
+        "destination_register": rd,
         "opcode": f"{_62opcode:05b}",
         "alignment": f"{_10alignment:02b}",
-        "decoded_function": f"{instruction_name}"
+        "decoded_function": instruction_name
     }
 
     # print("unpacker:", decoded_instruction)
@@ -365,10 +371,8 @@ def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1
 ##########################################
 
 
-def unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem,
-                                                                                                             address,
-                                                                                                             instructioni):
-    instruction = 11406179
+def unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address, instructioni):
+    instruction = mem[nr_to_tuple(address)]
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -404,6 +408,8 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
     offset30 = _117offset >> 1
     offset10 = _117offset & 0b1
     imm = (offset11 << 10) | (offset94 << 3) | (offset30) | (offset10 << 9)
+
+    print("ADRESA LA CARE VREAU SA SAR:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", imm)
 
     # deci if-ul asta il am ca sa verific daca e negativ si sa pot da ##
     # extend la semn ##
@@ -441,8 +447,13 @@ def unpack__3120offset_1915source_register_1412function_117destination_register_
     _117destination_register = (instruction >> 7) & 0b11111
     _1412function = (instruction >> 12) & 0b111
     _1915source_register = (instruction >> 15) & 0b11111
-    _3120offset = (instruction >> 20) & 0b111111111111
-
+    _3120offset = number_to_binary_string_32bit(instruction)
+    
+    _3120offset = _3120offset[0:12]
+    _3120offset = _3120offset[::-1]
+    
+    _3120offset = binary_string_to_number(_3120offset)
+    
     rs = [k for k, v in abi_names.items() if v == _1915source_register][0]
     rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
 
@@ -528,7 +539,7 @@ def unpack__3125offset_2420source_register_1915source_register_1412function_117o
 
 
 def unpack_jalr(mem, address, instructioni):
-    instruction = 9765607
+    instruction = mem[nr_to_tuple(address)]
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -562,7 +573,7 @@ def unpack_jalr(mem, address, instructioni):
 
 ## test 2147616111 ##
 def unpack_jal(mem, address, instruction):
-    print("unpacker:", bin(instruction))
+    instruction = mem[nr_to_tuple(address)] 
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -654,7 +665,7 @@ def unpack_system(mem, address, instructioni):
 
 def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
     address = initial_index_mapped_to_memory[reg["x3"]]
-
+    print("UNPACKER.PY:", initial_index_mapped_to_memory[reg["x3"]], reg["x3"])
     instruction = mem[nr_to_tuple(address)]
 
     # Extract opcode and alignment
@@ -710,6 +721,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
                     f"x{abi_names[decoded['destination_register']]}",
                     decoded["immediate_value"],
                 ]
+
 
             elif opcode_bin == "0010011":  # I-type
                 execution_args = [
