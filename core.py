@@ -1,11 +1,29 @@
 
 pc = "x3"
 sp = "x2" 
+ra = "x1"
 
 def increment_pc(reg, mappingpc):
     index_in_memory = mappingpc[reg[pc]]
     index_in_memory += 1
     reg[pc] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory)]
+    return reg
+
+def return_address_to_pc(reg, mappingpc):
+    index_in_memory = mappingpc[reg[ra]]
+    reg[pc] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory)]
+    return reg
+
+def jump_and_ra(offset, reg, mappingpc):
+    index_in_memory_ra = mappingpc[reg[pc]]
+    index_in_memory_ra += 1
+    reg[ra] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory_ra)]
+    reg[pc] = offset
+    return reg
+
+def branch_pc(offset, reg, mappingpc):
+    reg[pc] = offset
+    return reg
 
 def extend_sign(value, bits):
     sign_bit = 1 << (bits - 1)
@@ -16,77 +34,77 @@ def signed2unsigned(value):
     return unsigned_value
 
 def cell2linescolumns(value):
-    return (value/10, value%10)
+    return (value//10, value%10)
 
 ## add ##
 def add(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] + reg[rs2]
-    increment_pc(reg, mappingpc) 
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## add immediate value ##
 def addi(rd, rs1, immediate_value, mem, reg, mappingpc):
     reg[rd] = reg[rs1] + int(immediate_value)
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## sub reg to reg ##
 def sub(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] - reg[rs2]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## LUI: Load upper immediate ##
 def lui(rd, immediate_value, mem, reg, mappingpc):
     reg[rd] = immediate_value << 12
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## AND ##
 def and_op(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] & reg[rs2]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## OR ##
 def or_op(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] | reg[rs2]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## XOR ##
 def xor_op(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] ^ reg[rs2]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## Set less than ##
 def slt(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = int(reg[rs1] < reg[rs2])
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## AUIPC: Add upper immediate to program counter ##
 def auipc(rd, immediate_value, mem, reg, mappingpc):
     reg[rd] = reg[pc] + (immediate_value << 12)
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## Set less than immediate ##
 def slti(rd, rs1, immediate_value, mem, reg, mappingpc):
     reg[rd] = int(reg[rs1] < extend_sign(immediate_value, 12))
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## Set less than immediate unsigned ## 
 def sltiu(rd, rs1, immediate_value, mem, reg, mappingpc):
@@ -94,8 +112,9 @@ def sltiu(rd, rs1, immediate_value, mem, reg, mappingpc):
         reg[rd] = 1
     else:
         reg[rd] = 0 
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Set less than rs2 unsigned  
 def sltu(rd, rs1, rs2, mem, reg, mappingpc):
@@ -103,78 +122,81 @@ def sltu(rd, rs1, rs2, mem, reg, mappingpc):
         reg[rd] = 1
     else:
         reg[rd] = 0 
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## XOR with immediate value ##
 def xori(rd, rs1, immediate_value, mem, reg, mappingpc):
     reg[rd] = reg[rs1] ^ extend_sign(immediate_value, 12)
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## Shift left logical ##
 def sll(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] << reg[rs2]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Shift left logical immediate  
 def slli(rd, rs1, shamt, mem, reg, mappingpc):
     reg[rd] = reg[rs1] << shamt
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Shift right logical immediate  
 def srli(rd, rs1, shamt, mem, reg, mappingpc):
     reg[rd] = reg[rs1] >> shamt
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Shift right logical ## 
 def srl(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = (reg[rs1] >> reg[rs2]) & 0xFFFFFFFF
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## Shift right arithmetic ##
 def sra(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] >> reg[rs2]
     if reg[rs1] < 0:  # Sign-extend the shift 
         reg[rd] |= (0xFFFFFFFF << (32 - reg[rs2]))
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Shift right arithmetic immediate  
 def srai(rd, rs1, shamt, mem, reg, mappingpc):
-    reg[rd] = reg[rs1] >> reg[rs2]
-    if reg[rs1] < 0:  # Sign-extend the shift
-        reg[rd] |= (0xFFFFFFFF << (32 - shamt))
-    increment_pc(reg, mappingpc)
+    reg[rd] = reg[rs1] >> extend_sign(shamt)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Set equal ##
 def seq(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = 1 if reg[rs1] == reg[rs2] else 0
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## AND immediate ##
 def andi(rd, rs1, immediate_value, mem, reg, mappingpc):
     reg[rd] = reg[rs1] & extend_sign(immediate_value, 12)
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## OR immediate ##
 def ori(rd, rs1, immediate_value, mem, reg, mappingpc):
     reg[rd] = reg[rs1] | extend_sign(immediate_value, 12)
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## CSR Read and Write ##
 def csrrw(rd, csr, rs1, mem, reg, mappingpc):
@@ -182,8 +204,9 @@ def csrrw(rd, csr, rs1, mem, reg, mappingpc):
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = reg[rs1]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    return mem, reg
 
 ## CSR Read and Set bits in CSR  
 def csrrs(rd, csr, rs1, mem, reg, mappingpc):
@@ -191,8 +214,9 @@ def csrrs(rd, csr, rs1, mem, reg, mappingpc):
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = reg[rs1] or reg[rd]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"csrrs: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    return mem, reg
 
 ## CSR Read and clear bits in CSR  
 def csrrc(rd, csr, rs1, mem, reg, mappingpc):
@@ -200,8 +224,9 @@ def csrrc(rd, csr, rs1, mem, reg, mappingpc):
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = reg[rs1] and not(reg[rd])
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"csrrc: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    return mem, reg
 
 ## CSR Read and Write immediate  
 def csrrwi(rd, csr, uimm, mem, reg, mappingpc):
@@ -209,8 +234,9 @@ def csrrwi(rd, csr, uimm, mem, reg, mappingpc):
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = uimm and 0x0000001F
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"csrrwi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    return mem, reg
 
 ## CSR Read and Set bits immediate in CSR  
 def csrrsi(rd, csr, uimm, mem, reg, mappingpc):
@@ -218,8 +244,9 @@ def csrrsi(rd, csr, uimm, mem, reg, mappingpc):
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = (uimm and 0x0000001F) or reg[rd]
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"csrrsi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    return mem, reg
 
 ## CSR Read and clear bits immediate in CSR  
 def csrrci(rd, csr, uimm, mem, reg, mappingpc):
@@ -227,8 +254,9 @@ def csrrci(rd, csr, uimm, mem, reg, mappingpc):
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
         mem[lines, columns] = (uimm and 0x0000001F) and not(reg[rd])
-    increment_pc(reg, mappingpc)
+    reg = increment_pc(reg, mappingpc) 
     print(f"csrrci: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
+    return mem, reg
 
 ## Stops execution  
 def ecall(mem, reg, mappingpc):
@@ -240,7 +268,7 @@ def ebreak(mem, reg, mappingpc):
     exit()
 
 def ret(mem, reg, mappingpc):
-    
+    reg = return_address_to_pc(reg, mappingpc)
     reg[pc] = reg["R1"]
     reg["R5"] = 0
     reg["R6"] = 0
@@ -249,6 +277,7 @@ def ret(mem, reg, mappingpc):
     reg["R29"] = 0
     reg["R30"] = 0
     reg["R31"] = 0
+    return mem, reg
 
 def uret(mem, reg, mappingpc):
     print("No user mode enabled")
@@ -272,8 +301,9 @@ def lb(rd, offset, rs1, mem, reg, mappingpc):
     temp = mem[lines, columns]
     temp = ((temp and 0x80000000) >> 24) or (temp and 0x0000007F)
     reg[rd] = extend_sign(temp, 8)
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"LB: {rd} = {reg[rd]}")
+    return mem, reg
 
 ## Load a 16-bit value from memory  
 def lh(rd, offset, rs1, mem, reg, mappingpc):
@@ -281,60 +311,66 @@ def lh(rd, offset, rs1, mem, reg, mappingpc):
     temp = mem[lines, columns]
     temp = ((temp and 0x80000000) >> 16) or (temp and 0x00007FFF)
     reg[rd] = extend_sign(temp, 16)
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"LH: {rd} = {reg[rd]}")
+    return mem, reg
 
 ## Load a 32-bit value from memory  
 def lw(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     reg[rd] = temp
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"LW: {rd} = {reg[rd]}")
+    return mem, reg
 
 ## Load a 8-bit value from memory zero-extend  
 def lbu(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     reg[rd] = temp and 0x000000FF
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"LBU: {rd} = {reg[rd]}")
+    return mem, reg
 
 ## Load a 16-bit value from memory zero-extend  
 def lhu(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     reg[rd] = temp and 0x0000FFFF
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"LHU: {rd} = {reg[rd]}")
+    return mem, reg
 
 ## Store a 8-bit value in memory  
 def sb(rs2, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = reg[rs2] and 0x000000FF
     mem[lines, columns] = temp
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"SB: mem[{lines}, {columns}] = {temp}")
+    return mem, reg
 
 ## Store a 16-bit value in memory  
 def sh(rs2, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = reg[rs2] and 0x0000FFFF
     mem[lines, columns] = temp
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"SH: mem[{lines}, {columns}] = {temp}")
+    return mem, reg
 
 ## Store a 32-bit value in memory  
 def sw(rs2, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     mem[lines, columns] = reg[rs2]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"SW: mem[{lines}, {columns}] = {reg[rs2]}")
+    return mem, reg
 
-## Jump and link (ADRESARE INDIRECTA) 
+## Jump and link (ADRESARE DIRECTA) 
 def jal(rd, offset, mem, reg, mappingpc):
-    reg[rd] = reg[pc] + 1
-    reg[pc] += offset ############################################# MUST CHANGE TO ADDRESS LABEL
+    reg = jump_and_ra(extend_sign(offset, 20), reg, mappingpc)
     reg["R5"] = 0
     reg["R6"] = 0
     reg["R7"] = 0
@@ -342,11 +378,11 @@ def jal(rd, offset, mem, reg, mappingpc):
     reg["R29"] = 0
     reg["R30"] = 0
     reg["R31"] = 0
+    return mem, reg
 
 ## Jump and link register (ADRESARE DIRECTA) 
 def jalr(rd, rs1, offset, mem, reg, mappingpc):
-    reg[rd] = reg[pc] + 1
-    reg[pc] = reg[rs1] + extend_sign(offset, 12)#################### MUST CHANGE TO ADDRESS LABEL
+    reg = jump_and_ra(reg[rs1] + extend_sign(offset, 12), reg, mappingpc)
     reg["R5"] = 0
     reg["R6"] = 0
     reg["R7"] = 0
@@ -354,100 +390,115 @@ def jalr(rd, rs1, offset, mem, reg, mappingpc):
     reg["R29"] = 0
     reg["R30"] = 0
     reg["R31"] = 0
+    return mem, reg
 
-## take branch if rs1 == rs2 (ADRESARE INDIRECTA) 
+## take branch if rs1 == rs2 (ADRESARE DIRECTA) 
 def beq(rs1, rs2, offset, mem, reg, mappingpc):
     if (reg[rs1] == reg[rs2]):
-        reg[pc] += extend_sign(offset)
+        reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
-        reg[pc] += 1
+        reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
-## take branch if rs1 != rs2 (ADRESARE INDIRECTA) 
+## take branch if rs1 != rs2 (ADRESARE DIRECTA) 
 def bne(rs1, rs2, offset, mem, reg, mappingpc):
     if (reg[rs1] != reg[rs2]):
-        reg[pc] += extend_sign(offset)
+        reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
-        reg[pc] += 1
+        reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
-## take branch if rs1 < rs2 (ADRESARE INDIRECTA) 
+## take branch if rs1 < rs2 (ADRESARE DIRECTA) 
 def blt(rs1, rs2, offset, mem, reg, mappingpc):
     if (reg[rs1] < reg[rs2]):
-        reg[pc] += extend_sign(offset)
+        reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
-        reg[pc] += 1
+        reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
-## take branch if rs1 >= rs2 (ADRESARE INDIRECTA) 
+## take branch if rs1 >= rs2 (ADRESARE DIRECTA) 
 def bge(rs1, rs2, offset, mem, reg, mappingpc):
     if (reg[rs1] >= reg[rs2]):
-        reg[pc] += extend_sign(offset)
+        reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
-        reg[pc] += 1
+        reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
-## take branch if rs1 < rs2 - unsigned (ADRESARE INDIRECTA) 
+## take branch if rs1 < rs2 - unsigned (ADRESARE DIRECTA) 
 def bltu(rs1, rs2, offset, mem, reg, mappingpc):
     if (signed2unsigned(reg[rs1]) < signed2unsigned(reg[rs2])):
-        reg[pc] += extend_sign(offset)
+        reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
-        reg[pc] += 1
+        reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
-## take branch if rs1 >= rs2 - unsigned (ADRESARE INDIRECTA) 
+## take branch if rs1 >= rs2 - unsigned (ADRESARE DIRECTA) 
 def bgeu(rs1, rs2, offset, mem, reg, mappingpc):
     if (signed2unsigned(reg[rs1]) >= signed2unsigned(reg[rs2])):
-        reg[pc] += extend_sign(offset)
+        reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
-        reg[pc] += 1
+        reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
 ## Multiplication  
 def mul(rd, rs1, rs2, mem, reg, mappingpc):
     temp = reg[rs1] * reg[rs2]
     reg[rd] = temp and 0xFFFFFFFF 
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Multiplication upper stored  
 def mulh(rd, rs1, rs2, mem, reg, mappingpc):
     temp = reg[rs1] * reg[rs2]
     reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Multiplication upper stored rs1 signed, rs2 unsigned  
 def mulhsu(rd, rs1, rs2, mem, reg, mappingpc):
     temp = reg[rs1] * signed2unsigned(reg[rs2])
     reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Multiplication upper stored rs1 unsigned, rs2 unsigned  
 def mulhu(rd, rs1, rs2, mem, reg, mappingpc):
     temp = signed2unsigned(reg[rs1]) * signed2unsigned(reg[rs2])
     reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Division  
 def div(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] // reg[rs2]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Division unsigned  
 def divu(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = signed2unsigned(reg[rs1]) // signed2unsigned(reg[rs2])
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Modulo  
 def rem(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = reg[rs1] % reg[rs2]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## Modulo unsigned  
 def remu(rd, rs1, rs2, mem, reg, mappingpc):
     reg[rd] = signed2unsigned(reg[rs1]) % signed2unsigned(reg[rs2])
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 swap with rs2  
 def amoswap_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -457,8 +508,9 @@ def amoswap_w(rd, rs2, rs1, mem, reg, mappingpc):
     reg[rd] = reg[rs2]
     reg[rs2] = temp
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 add with rs2 and load result  
 def amoadd_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -466,8 +518,9 @@ def amoadd_w(rd, rs2, rs1, mem, reg, mappingpc):
     reg[rd] = mem[lines, columns]
     reg[rd] += reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 xor with rs2 and load result  
 def amoxor_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -475,8 +528,9 @@ def amoxor_w(rd, rs2, rs1, mem, reg, mappingpc):
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] ^ reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 and with rs2 and load result  
 def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -484,8 +538,9 @@ def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] and reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 or with rs2 and load result  
 def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -493,9 +548,9 @@ def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] or reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
-
+    return mem, reg
 
 ## memory rs1 compared with rs2 and load min result  
 def amomin_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -504,8 +559,9 @@ def amomin_w(rd, rs2, rs1, mem, reg, mappingpc):
     if reg[rd] > reg[rs2]:
         reg[rd] = reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 compared with rs2 and load max result  
 def amomax_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -514,8 +570,9 @@ def amomax_w(rd, rs2, rs1, mem, reg, mappingpc):
     if reg[rd] < reg[rs2]:
         reg[rd] = reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 compared with rs2 and load min result - unsigned  
 def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -524,8 +581,9 @@ def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
     if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
         reg[rd] = reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
 ## memory rs1 compared with rs2 and load max result - unsigned  
 def amomaxu_w(rd, rs2, rs1, mem, reg, mappingpc):
@@ -534,21 +592,24 @@ def amomaxu_w(rd, rs2, rs1, mem, reg, mappingpc):
     if signed2unsigned(reg[rd]) < signed2unsigned(reg[rs2]):
         reg[rd] = reg[rs2]
     mem[lines, columns] = reg[rd]
-    reg[pc] += 1
+    reg = increment_pc(reg, mappingpc) 
     print(f"{rd} = {reg[rd]}")
+    return mem, reg
 
-## push in stack ## NOT IN DICT YET ////////////////////////////////////////////////////////
+## push in stack ## 
 def push(rd, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[sp])
     mem[lines, columns] = reg[rd]
-    reg[sp] -= 1
+    reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
-## pop from stack ## NOT IN DICT YET ////////////////////////////////////////////////////////
+## pop from stack ## 
 def pop(rd, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[sp])
     reg[rd] = mem[lines, columns]
     mem[lines, columns] = 0
-    reg[sp] += 1
+    reg = increment_pc(reg, mappingpc) 
+    return mem, reg
 
 instruction_set = {
     "0000011": {
