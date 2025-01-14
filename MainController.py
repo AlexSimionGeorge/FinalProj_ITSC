@@ -1,27 +1,15 @@
 import tkinter as tk
-from pprint import pprint
-
-from Assembler import assemble_code
+from Assembler import assemble_code, abi_names
+from unpacker import decode_and_execute_instruction
 
 current_line = 0
+previous_line = None
 initial_index_mapped_to_memory = dict()
 mem = {(line, column): 0 for line in range(37) for column in range(10)}
 
 ###register directory + memory directory###
 reg = {f"x{i}": 0 for i in range(32)}
-abi_names = [
-    "zero",
-    "ra",
-    "sp",
-    "gp", #reg['x3']
-    "tp",
-    "t0","t1","t2",
-    "s0/fp",
-    "s1",
-    "a0","a1","a2","a3","a4","a5","a6","a7",
-    "s2","s3","s4","s5","s6","s7","s8","s9","s10","s11",
-    "t3", "t4", "t5", "t6"
-]
+abi_names_display = list(abi_names.keys())
 
 def main():
     def set_row_column(memory_displayed_list, row, col, val):
@@ -29,14 +17,14 @@ def main():
         memory_displayed_list[row][col].insert(0, f"{val:5d}")
 
     def set_register(registers_displayed_list, x, val):
-        registers_displayed_list[x].config(text= abi_names[x] + ": " + str(val))
+        registers_displayed_list[x].config(text=abi_names_display[x] + ": " + str(val))
 
-    def execute_line_i(line_index, code_displayed_list, registers_displayed_list, memory_displayed_list):
+    def execute_line_i(line_index, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line_loc):
         global initial_index_mapped_to_memory
         frontend_indexes = list(initial_index_mapped_to_memory.keys())
 
-        if line_index > 0:
-            code_displayed_list[frontend_indexes[line_index - 1]].config(background="white")
+        if previous_line_loc is not None:
+            code_displayed_list[frontend_indexes[previous_line_loc]].config(background="white")
 
         #CALL BACK with data
         # execute call here set the regs and all values
@@ -45,6 +33,13 @@ def main():
         # set_register(registers_displayed_list, line_index, 9)
 
         code_displayed_list[frontend_indexes[line_index]].config(background="red")
+
+        global mem
+        global reg
+        mem, reg = decode_and_execute_instruction(mem, reg)
+
+
+        return line_index
 
     def create_scrollable_frame(parent, width, height):
         canvas = tk.Canvas(parent, width=width, height=height)
@@ -106,9 +101,11 @@ def main():
         def step_through_lines():
             global current_line
             global initial_index_mapped_to_memory
+            global previous_line
             if current_line < len(initial_index_mapped_to_memory.keys()):
-                execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list)
-                current_line += 1
+                print("current_line:", current_line, "prev line:", previous_line)
+                previous_line = execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line)
+                current_line = reg['x3'] # adc PC care  a fost modificat
 
         code = input_code.get(1.0, tk.END)
         code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
@@ -118,8 +115,11 @@ def main():
         # call assembler
         global mem
         global initial_index_mapped_to_memory
-        mem, initial_index_mapped_to_memory = assemble_code(code, mem)
-        pprint(initial_index_mapped_to_memory)
+        global reg
+        reg, mem, initial_index_mapped_to_memory = assemble_code(code, mem, reg)
+        global current_line
+        current_line = reg['x3']
+
 
         lines = code.splitlines()
 
@@ -149,7 +149,7 @@ def main():
         registers_zone_title.grid(row=0, column=1, padx=5, pady=5)
         # Populate the registers section
         registers_displayed_list = []
-        for i, name in enumerate(abi_names):
+        for i, name in enumerate(abi_names_display):
             label = tk.Label(register_scrollable_frame, text=name + ": " + str(list(reg.values())[i]), background="white",
                              width=25, anchor="w")
             label.grid(row=i, column=0, padx=5, pady=1)

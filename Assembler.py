@@ -1,6 +1,6 @@
 import re
 
-abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'gp': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
+abi_names = {'zero': 0, 'ra': 1, 'sp': 2, 'pc': 3, 'tp': 4, 't0': 5, 't1': 6, 't2': 7, 's0/fp': 8, 's1': 9, 'a0': 10, 'a1': 11, 'a2': 12, 'a3': 13, 'a4': 14, 'a5': 15, 'a6': 16, 'a7': 17, 's2': 18, 's3': 19, 's4': 20, 's5': 21, 's6': 22, 's7': 23, 's8': 24, 's9': 25, 's10': 26, 's11': 27, 't3': 28, 't4': 29, 't5': 30, 't6': 31}
 
 def is_empty_string(s):
     return not any(c.isprintable() and not c.isspace() for c in s)
@@ -142,7 +142,7 @@ def _jal(labels, params):
     if offset in labels:
         offset_in_bin = dec2bin_str(labels.index(offset), 20, 0)
         offset_in_bin = offset_in_bin[::-1]
-        print(offset_in_bin)
+        # print(offset_in_bin)
     else:
         offset_in_bin = dec2bin_str(hex2dec(offset), 20, 0)
 
@@ -161,6 +161,7 @@ def _jal(labels, params):
     # a = bin2dec(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
     # print(a)
     return bin2dec(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
+
 
 def _jalr(labels, params):
     offset = params[2]
@@ -190,7 +191,7 @@ def b_3125offset_2420source_register_1915source_register_1412function_117offset_
     rs1 = dec2bin_str(abi_names[params[0]], 19, 15)
     _10alignment = "11"
 
-    print(bin2dec(offset_in_bin[11] + offset_in_bin[9: 4 -1: -1] + rs2 + rs1 + _1412function + offset_in_bin[3::-1] + offset_in_bin[10] + _62opcode + _10alignment ))
+    # print(bin2dec(offset_in_bin[11] + offset_in_bin[9: 4 -1: -1] + rs2 + rs1 + _1412function + offset_in_bin[3::-1] + offset_in_bin[10] + _62opcode + _10alignment ))
 
     return bin2dec(offset_in_bin[11] + offset_in_bin[9: 4 -1: -1] + rs2 + rs1 + _1412function + offset_in_bin[3::-1] + offset_in_bin[10] + _62opcode + _10alignment )
 
@@ -269,7 +270,6 @@ functions = {
     "bltu": lambda labels, params: b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="110", _62opcode="11000"),
     "bgeu": lambda labels, params: b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="111", _62opcode="11000"),
 
-
     #TODO: fence
     "fence": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "fence.i": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
@@ -300,7 +300,7 @@ def extract_label_and_operation(text):
         return label, code
     return "", text.strip()
 
-def assemble_code(code, memory):
+def assemble_code(code, memory, reg):
     labels = []
     parameters = []
     instructions = []
@@ -337,17 +337,12 @@ def assemble_code(code, memory):
         if instruction == ".word":
             labels_constants_dot_data[labels[i]] = parameters[i][0]
 
-
-
-
-
-
-
+    # TODO refactor this and next loop to be made all in one
     operations_with_const_labels = []
     empty_memory_positions = []
     for i, instruction in enumerate(instructions):
         try:
-            # TODO append to list if has constant value, tine minte o list cu poz pe care sa le pui
+
             skip_this = False
             for param in parameters[i]:
                 if param in list(labels_constants_dot_data.keys()):
@@ -371,7 +366,7 @@ def assemble_code(code, memory):
         except KeyError:
             not_found_instr.append(instruction)
 
-
+    # TODO
     # add in memory instr that depend on .data
     for indexing, i in enumerate(operations_with_const_labels):
         mem_adr = empty_memory_positions[indexing]
@@ -403,7 +398,10 @@ def assemble_code(code, memory):
     print("instructions not founded/erred:",not_found_instr)
     print("initial code relevant lines indexing:", initial_index_mapped_to_memory)
 
-    return memory, initial_index_mapped_to_memory
+    first_adr = list(initial_index_mapped_to_memory.keys())[0]
+    reg['x3'] = first_adr
+
+    return reg, memory, initial_index_mapped_to_memory
 
 
 
