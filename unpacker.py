@@ -727,11 +727,11 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
             print("unpacker:", f"Execution function: {execution_function}")
             print("unpacker:", f"Execution arguments: {execution_args}")
             try:
-                execution_function(*execution_args, mem, reg, initial_index_mapped_to_memory)
+                mem, reg = execution_function(*execution_args, mem, reg, initial_index_mapped_to_memory)
+                print("FIX DUPA_______________", reg['x3'])
+
             except Exception as e:
                 print("unpacker:", f"Error during execution: {e}")
-                return mem, reg
-            return mem, reg
         else:
             print("unpacker:", f"Invalid or unknown decoded function for instruction at address {address}")
     else:

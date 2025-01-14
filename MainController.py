@@ -36,7 +36,6 @@ def main():
         global mem
         global reg
         mem, reg = decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory)
-
         return line_index
 
     def create_scrollable_frame(parent, width, height):
@@ -100,7 +99,7 @@ def main():
             global current_line
             global initial_index_mapped_to_memory
             global previous_line
-            if current_line < len(initial_index_mapped_to_memory.keys()):
+            if True:
                 # print("current_line:", current_line, "prev line:", previous_line)
                 previous_line = execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line)
                 current_line = reg['x3'] # adc PC care  a fost modificat
@@ -114,7 +113,7 @@ def main():
     _start: lw t1, 0x0(t0)         ; 5
             lw  t2, 0x0(t0)             ; 6
             add t3, t1, t2             ; 7
-            sw  t3, 0xFFF(t0)             ; 8
+            sw  t3, 0x21(t0)             ; 8
     loop:   beq t3, a0, end          ; 9
             jalr t0, a0, loop               ; 10
     end:    addi a7, zero, num1        ; 11

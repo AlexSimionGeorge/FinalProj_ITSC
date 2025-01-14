@@ -398,6 +398,8 @@ def beq(rs1, rs2, offset, mem, reg, mappingpc):
         reg = branch_pc(extend_sign(offset,12), reg, mappingpc)
     else:
         reg = increment_pc(reg, mappingpc)
+
+    print("core.py", f"BEQ: {reg[pc]}")
     return mem, reg
 
 ## take branch if rs1 != rs2 (ADRESARE DIRECTA)
