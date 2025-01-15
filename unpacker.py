@@ -306,8 +306,7 @@ def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412functi
 ##########################################
 
 
-def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(
-        mem, address, instructioni):
+def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
     instruction = mem[nr_to_tuple(address)]
 
     _10alignment = instruction & 0b11

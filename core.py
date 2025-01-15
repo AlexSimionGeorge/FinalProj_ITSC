@@ -5,10 +5,14 @@ sp = "x2"
 pc = "x3"
 
 def increment_pc(reg, mappingpc):
+    print("IN INCREMENT_PC:", mappingpc, reg[pc])
     index_in_memory = mappingpc[reg[pc]]
+    print("IN INCREMENT_PC:", index_in_memory, mappingpc[reg[pc]])
     index_in_memory += 1
+    print("IN INCREMENT_PC:", index_in_memory)
     reg[pc] = list(mappingpc.keys())[list(mappingpc.values()).index(index_in_memory)]
-    print("core.py: test")
+    
+    print("core.py: test", reg[pc])
     return reg
 
 def return_address_to_pc(reg, mappingpc):
@@ -131,7 +135,9 @@ def sltu(rd, rs1, rs2, mem, reg, mappingpc):
         reg[rd] = 1
     else:
         reg[rd] = 0
+    print("IN CORE INAINTE DE INCREMENT_PC:", reg['x3'])
     reg = increment_pc(reg, mappingpc)
+    print("IN CORE DUPA INCREMENT_PC:", reg['x3'])
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
 
@@ -227,7 +233,7 @@ def csrrs(rd, csr, rs1, mem, reg, mappingpc):
     if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
-        mem[lines, columns] = reg[rs1] or reg[rd]
+        mem[lines, columns] = reg[rs1] | reg[rd]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrs: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
@@ -237,7 +243,7 @@ def csrrc(rd, csr, rs1, mem, reg, mappingpc):
     if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
-        mem[lines, columns] = reg[rs1] and not(reg[rd])
+        mem[lines, columns] = reg[rs1] & ~(reg[rd])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrc: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
@@ -247,7 +253,7 @@ def csrrwi(rd, csr, uimm, mem, reg, mappingpc):
     if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
-        mem[lines, columns] = uimm and 0x0000001F
+        mem[lines, columns] = uimm & 0x0000001F
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrwi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
@@ -257,7 +263,7 @@ def csrrsi(rd, csr, uimm, mem, reg, mappingpc):
     if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
-        mem[lines, columns] = (uimm and 0x0000001F) or reg[rd]
+        mem[lines, columns] = (uimm & 0x0000001F) | reg[rd]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrsi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
@@ -267,7 +273,7 @@ def csrrci(rd, csr, uimm, mem, reg, mappingpc):
     if rd != reg[zero]:
         lines, columns = cell2linescolumns(csr)
         reg[rd] = mem[lines, columns]
-        mem[lines, columns] = (uimm and 0x0000001F) and not(reg[rd])
+        mem[lines, columns] = (uimm & 0x0000001F) & ~(reg[rd])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrci: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
@@ -312,7 +318,7 @@ def wfi(mem, reg, mappingpc):
 def lb(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
-    temp = ((temp and 0x80000000) >> 24) or (temp and 0x0000007F)
+    temp = ((temp & 0x80000000) >> 24) or (temp & 0x0000007F)
     reg[rd] = extend_sign(temp, 8)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"LB: {rd} = {reg[rd]}")
@@ -322,7 +328,7 @@ def lb(rd, offset, rs1, mem, reg, mappingpc):
 def lh(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
-    temp = ((temp and 0x80000000) >> 16) or (temp and 0x00007FFF)
+    temp = ((temp & 0x80000000) >> 16) or (temp & 0x00007FFF)
     reg[rd] = extend_sign(temp, 16)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"LH: {rd} = {reg[rd]}")
@@ -341,7 +347,7 @@ def lw(rd, offset, rs1, mem, reg, mappingpc):
 def lbu(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
-    reg[rd] = temp and 0x000000FF
+    reg[rd] = temp & 0x000000FF
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"LBU: {rd} = {reg[rd]}")
     return mem, reg
@@ -350,7 +356,7 @@ def lbu(rd, offset, rs1, mem, reg, mappingpc):
 def lhu(rd, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
-    reg[rd] = temp and 0x0000FFFF
+    reg[rd] = temp & 0x0000FFFF
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"LHU: {rd} = {reg[rd]}")
     return mem, reg
@@ -358,7 +364,7 @@ def lhu(rd, offset, rs1, mem, reg, mappingpc):
 ## Store a 8-bit value in memory
 def sb(rs2, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
-    temp = reg[rs2] and 0x000000FF
+    temp = reg[rs2] & 0x000000FF
     mem[lines, columns] = temp
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"SB: mem[{lines}, {columns}] = {temp}")
@@ -367,7 +373,7 @@ def sb(rs2, offset, rs1, mem, reg, mappingpc):
 ## Store a 16-bit value in memory
 def sh(rs2, offset, rs1, mem, reg, mappingpc):
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
-    temp = reg[rs2] and 0x0000FFFF
+    temp = reg[rs2] & 0x0000FFFF
     mem[lines, columns] = temp
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"SH: mem[{lines}, {columns}] = {temp}")
@@ -458,7 +464,7 @@ def bgeu(rs1, rs2, offset, mem, reg, mappingpc):
 ## Multiplication
 def mul(rd, rs1, rs2, mem, reg, mappingpc):
     temp = reg[rs1] * reg[rs2]
-    reg[rd] = temp and 0xFFFFFFFF
+    reg[rd] = (temp & 0xFFFFFFFF)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -466,7 +472,7 @@ def mul(rd, rs1, rs2, mem, reg, mappingpc):
 ## Multiplication upper stored
 def mulh(rd, rs1, rs2, mem, reg, mappingpc):
     temp = reg[rs1] * reg[rs2]
-    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -474,7 +480,7 @@ def mulh(rd, rs1, rs2, mem, reg, mappingpc):
 ## Multiplication upper stored rs1 signed, rs2 unsigned
 def mulhsu(rd, rs1, rs2, mem, reg, mappingpc):
     temp = reg[rs1] * signed2unsigned(reg[rs2])
-    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -482,7 +488,7 @@ def mulhsu(rd, rs1, rs2, mem, reg, mappingpc):
 ## Multiplication upper stored rs1 unsigned, rs2 unsigned
 def mulhu(rd, rs1, rs2, mem, reg, mappingpc):
     temp = signed2unsigned(reg[rs1]) * signed2unsigned(reg[rs2])
-    reg[rd] = (temp and 0xFFFFFFFF00000000) >> 32
+    reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
