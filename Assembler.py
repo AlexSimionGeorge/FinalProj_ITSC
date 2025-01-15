@@ -289,9 +289,6 @@ functions = {
     "bgeu": lambda labels, params: b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="111", _62opcode="11000"),
 
     #TODO: fence
-    "fence": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
-    "fence.i": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
-    "sfence.vma": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "csrrw": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "csrrs": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "csrrc": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
