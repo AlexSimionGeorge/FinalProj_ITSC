@@ -90,7 +90,10 @@ def xor_op(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Set less than ##
 def slt(rd, rs1, rs2, mem, reg, mappingpc):
-    reg[rd] = int(reg[rs1] < reg[rs2])
+    if reg[rs1] < reg[rs2]:
+        reg[rd] = 1
+    else:
+        reg[rd] = 0
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -104,14 +107,17 @@ def auipc(rd, immediate_value, mem, reg, mappingpc):
 
 ## Set less than immediate ##
 def slti(rd, rs1, immediate_value, mem, reg, mappingpc):
-    reg[rd] = int(reg[rs1] < extend_sign(immediate_value, 12))
+    if (reg[rs1] < extend_sign(immediate_value, 12)):
+        reg[rd] = 1
+    else:
+        reg[rd] = 0
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
 
 ## Set less than immediate unsigned ##
 def sltiu(rd, rs1, immediate_value, mem, reg, mappingpc):
-    if (signed2unsigned(reg[rs1]) < signed2unsigned(extend_sign(immediate_value, 12) & 0xFFFFFFFF)):
+    if (signed2unsigned(reg[rs1]) < signed2unsigned(extend_sign(immediate_value, 12))):
         reg[rd] = 1
     else:
         reg[rd] = 0
