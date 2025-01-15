@@ -408,11 +408,11 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
     second = binstr[20:25]
     ans = first + second
     ans = binary_string_to_number(ans)
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", binstr)
-    print(first, second)
+    #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", binstr)
+    # print(first, second)
 
     imm = ans
-    print("ADRESA LA CARE VREAU SA SAR:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", ans)
+    # print("ADRESA LA CARE VREAU SA SAR:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", ans)
 
     # deci if-ul asta il am ca sa verific daca e negativ si sa pot da ##
     # extend la semn ##
@@ -509,8 +509,8 @@ def unpack__3125offset_2420source_register_1915source_register_1412function_117o
     imm_high = (instruction >> 25) & 0b1111111
     imm_high = revert(imm_high)
 
-    print("UNPACKER PRIMU:", bin(imm_high))
-    print("UNPACKER AL DOILEA:", bin(imm_low))
+    # print("UNPACKER PRIMU:", bin(imm_high))
+    # print("UNPACKER AL DOILEA:", bin(imm_low))
 
 
     immediate = (imm_high << 5) | imm_low
@@ -520,7 +520,7 @@ def unpack__3125offset_2420source_register_1915source_register_1412function_117o
     rs2_name = [k for k, v in abi_names.items() if v == rs2][0]
 
     opcode_bin = f"{opcode:05b}{alignment:02b}"
-    print("unpacker:", opcode_bin)
+    # print("unpacker:", opcode_bin)
 
     if opcode_bin == "0100011":
         function_bin = f"{function:03b}"
@@ -590,8 +590,13 @@ def unpack_jal(mem, address, instruction):
 
     rd = [k for k, v in abi_names.items() if v == _117rd][0]
 
-    imm = (_31imm_20 << 19) | (_1912imm_19_12 << 11) | (_20imm_11 << 10) | (_3021imm_10_1)
-    print("unpacker:", f"{imm:b}")
+    strbin =number_to_binary_string_32bit(instruction)
+    #print(strbin)
+    imm = binary_string_to_number(strbin[:20])
+
+    #print("JAL jump adr:______________________________", imm)
+
+    #print("unpacker:", f"{imm:b}")
     # if (_31imm_20):
     #      imm |= -(1 << 21)
 
@@ -676,7 +681,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
     _62opcode = (instruction >> 2) & 0b11111
     opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
 
-    print("RELEVANT:__________________:", instruction)
+    # print("RELEVANT:__________________:", instruction)
 
     decoded = None
     execution_args = []
@@ -781,7 +786,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
             print("unpacker:", f"Execution arguments: {execution_args}")
             try:
                 mem, reg = execution_function(*execution_args, mem, reg, initial_index_mapped_to_memory)
-                print("FIX DUPA_______________", reg['x3'])
+                # print("FIX DUPA_______________", reg['x3'])
 
             except Exception as e:
                 print("unpacker:", f"Error during execution: {e}")

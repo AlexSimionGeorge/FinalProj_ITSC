@@ -51,7 +51,7 @@ def _3120immediate_1915source_register_1412function_117destination_register_62op
     imm_dec = hex2dec(imm)
 
     _3120immediate = dec2bin_str(imm_dec, 31, 20)
-    print("ADI_________ IMM hex:", imm, "bin:", _3120immediate)
+    # print("ADI_________ IMM hex:", imm, "bin:", _3120immediate)
 
     rs_index = abi_names[params[1]]
     _1915source_register = dec2bin_str(rs_index, 19, 15)
@@ -64,7 +64,7 @@ def _3120immediate_1915source_register_1412function_117destination_register_62op
     _62opcode = opcode
     _10alignment = "11"
 
-    print("PLEACA___________",_3120immediate + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
+    # print("PLEACA___________",_3120immediate + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
     return bin2dec(_3120immediate + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
 def _3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, function, opcode, _3127opcode, _2625control_bits):
@@ -123,13 +123,13 @@ def _3120offset_1915source_register_1412function_117destination_register_62opcod
     print(offset)
     _3120offset = dec2bin_str(hex2dec(offset), 31, 20)
 
-    print("ASTA MA INTERESEAZA: ", _3120offset)
+    # print("ASTA MA INTERESEAZA: ", _3120offset)
 
     _1915source_register = dec2bin_str(abi_names[params[2]], 19, 15)
     _117destination_register = dec2bin_str(abi_names[params[0]], 11, 7)
     _10alignment = "11"
 
-    print(_3120offset[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
+    # print(_3120offset[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
     return bin2dec(_3120offset[::-1] + _1915source_register + _1412function + _117destination_register + _62opcode + _10alignment)
 
@@ -153,11 +153,11 @@ def _3125offset_2420source_register_1915source_register_1412function_117offset_6
 def _jal(labels, params):
     offset = params[1]
     if offset in labels:
-        offset_in_bin = dec2bin_str(labels.index(offset), 20, 0)
-        offset_in_bin = offset_in_bin[::-1]
-        # print(offset_in_bin)
+        offset_in_bin = dec2bin_str(labels.index(offset), 31, 12)
     else:
-        offset_in_bin = dec2bin_str(hex2dec(offset), 20, 0)
+        offset_in_bin = dec2bin_str(hex2dec(offset), 31,  12)
+
+    print("\n\nJAL______________________ offset:", offset,  labels.index(offset),  offset_in_bin)
 
     rd_index = abi_names[params[0]]
     rd = dec2bin_str(rd_index, 11, 7)
@@ -173,7 +173,9 @@ def _jal(labels, params):
     # print(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
     # a = bin2dec(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
     # print(a)
-    return bin2dec(offset_in_bin[19]+ offset_in_bin[9::-1] + offset_in_bin[10] + offset_in_bin[18:10:-1] + rd + "11011" + "11")
+
+    print("len", len(offset_in_bin+ rd + "11011" + "11"))
+    return bin2dec(offset_in_bin+ rd + "11011" + "11")
 
 
 def _jalr(labels, params):
@@ -198,9 +200,9 @@ def b_3125offset_2420source_register_1915source_register_1412function_117offset_
 
     else:
         offset_in_bin = dec2bin_str(hex2dec(offset), 11, 0)
-    print("\n BEQ params", params)
-    print("BEQ nr to jump to:", labels.index(offset))
-    print("BEQ OFFSET____________________________________________________________________________", offset_in_bin)
+    # print("\n BEQ params", params)
+    # print("BEQ nr to jump to:", labels.index(offset))
+    # print("BEQ OFFSET____________________________________________________________________________", offset_in_bin)
 
 
 
@@ -420,7 +422,7 @@ def assemble_code(code, memory, reg):
 
     first_adr = list(initial_index_mapped_to_memory.keys())[0]
     reg['x3'] = first_adr
-    reg['x2'] = 369
+    reg['x2'] = 359
     return reg, memory, initial_index_mapped_to_memory
 
 
