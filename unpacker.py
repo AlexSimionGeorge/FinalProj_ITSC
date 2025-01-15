@@ -193,7 +193,7 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
             func3_bin = f"{_1412function:03b}"
             if func3_bin in current_level:
                 next_level = current_level[func3_bin]
-
+                print("TESTESTESTSETSETSETSE", next_level)
                 if isinstance(next_level, dict):
                     imm_bin = f"{_3120immediate_value:012b}"
                     if imm_bin in next_level:
@@ -236,8 +236,7 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
 ##########################################
 
 
-def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(
-        mem, address, instructioni):
+def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
     instruction = mem[nr_to_tuple(address)]
 
     _10alignment = instruction & 0b11
@@ -253,6 +252,7 @@ def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412functi
 
     instruction_name = None
 
+    print("TESTSETSTESTSETSETSET,")
     if opcode_bin in instruction_set:
         current_level = instruction_set[opcode_bin]
 
@@ -261,7 +261,6 @@ def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412functi
             func3_bin = f"{_1412function:03b}"
             if func3_bin in current_level:
                 next_level = current_level[func3_bin]
-
                 # nested case if I need to search deeper
                 if isinstance(next_level, dict):
                     funct7_bin = f"{_3127opcode:05b}"
@@ -688,7 +687,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
     opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
-
+    print("AAAAAAAAAAAAAAAAAA", opcode_bin)
     # print("RELEVANT:__________________:", instruction)
 
     decoded = None
@@ -724,8 +723,9 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
     # Ensure `decoded_function` is valid
     if decoded and "decoded_function" in decoded:
         execution_function = decoded["decoded_function"]
-
-        if callable(execution_function):
+        print("___________________________", execution_function)
+            
+        if callable(execution_function) or opcode_bin == "0010011":
             # Build arguments dynamically based on the instruction type
             if opcode_bin in {"0110111", "0010111"}:  # LUI, AUIPC
                 execution_args = [
@@ -733,8 +733,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
                     decoded["immediate_value"],
                 ]
 
-
-            elif opcode_bin == "0010011":  # I-type
+            elif opcode_bin == "0010011":
                 execution_args = [
                     f"x{abi_names[decoded['destination_register']]}",
                     f"x{abi_names[decoded['source_register_1']]}",
