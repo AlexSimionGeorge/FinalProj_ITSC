@@ -319,8 +319,8 @@ def unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1
     _2625control_bits = (instruction >> 25) & 0b1111111
     _3127opcode = (instruction >> 27) & 0b111
 
-    rs1 = [k for k, v in abi_names.items() if v == _2420source_register][0]
-    rs2 = [k for k, v in abi_names.items() if v == _1915source_register][0]
+    rs1 = [k for k, v in abi_names.items() if v == _1915source_register][0]
+    rs2 = [k for k, v in abi_names.items() if v == _2420source_register][0]
     rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
 
     opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
@@ -700,21 +700,16 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
         decoded = unpack__3112immediate_117destination_register_62opcode_10alignment(mem, address, None)
 
     elif opcode_bin == "0010011":  # I-type instructions
-        decoded = unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(
-            mem, address, None)
+        decoded = unpack__3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, None)
 
     elif opcode_bin == "0110011":  # R-type instructions
-        decoded = unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(
-            mem, address, None)
+        decoded = unpack_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, None)
 
     elif opcode_bin == "0000011":  # Load instructions
-        decoded = unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem,
-                                                                                                                   address,
-                                                                                                                   None)
+        decoded = unpack__3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address,None)
 
     elif opcode_bin == "1100011":  # Branch instructions
-        decoded = unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(
-            mem, address, None)
+        decoded = unpack__b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address, None)
 
     elif opcode_bin == "1100111":  # JALR
         decoded = unpack_jalr(mem, address, None)
