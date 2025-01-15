@@ -24,7 +24,8 @@ def jump_and_ra(rd, offset, reg, mappingpc):
     return reg
 
 def branch_pc(offset, reg, mappingpc):
-    reg[pc] = offset
+    print("______________________________________________________", offset)
+    reg[pc] = offset #list(mappingpc.keys())[list(mappingpc.values()).index(mappingpc[offset])]
     return reg
 
 def extend_sign(value, bits):
@@ -405,7 +406,7 @@ def beq(rs1, rs2, offset, mem, reg, mappingpc):
     else:
         reg = increment_pc(reg, mappingpc)
 
-    print("core.py", f"BEQ: {reg[pc]}")
+    print("core.py", f"BEQ: {reg[pc]}, comparison: {reg[rs1]} == {reg[rs2]}")
     return mem, reg
 
 ## take branch if rs1 != rs2 (ADRESARE DIRECTA)

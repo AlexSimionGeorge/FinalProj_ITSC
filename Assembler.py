@@ -194,20 +194,22 @@ def _jalr(labels, params):
 def b_3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function, _62opcode):
     offset = params[2]
     if offset in labels:
-        offset_in_bin = dec2bin_str(labels.index(offset), 12, 0)
+        offset_in_bin = dec2bin_str(labels.index(offset), 11, 0)
 
     else:
-        offset_in_bin = dec2bin_str(hex2dec(offset), 12, 0)
-    
-    offset_in_bin = offset_in_bin[::-1]
+        offset_in_bin = dec2bin_str(hex2dec(offset), 11, 0)
+    print("\n BEQ params", params)
+    print("BEQ nr to jump to:", labels.index(offset))
+    print("BEQ OFFSET____________________________________________________________________________", offset_in_bin)
+
+
 
     rs2 = dec2bin_str(abi_names[params[1]], 24, 20)
     rs1 = dec2bin_str(abi_names[params[0]], 19, 15)
     _10alignment = "11"
 
     # print(bin2dec(offset_in_bin[11] + offset_in_bin[9: 4 -1: -1] + rs2 + rs1 + _1412function + offset_in_bin[3::-1] + offset_in_bin[10] + _62opcode + _10alignment ))
-
-    return bin2dec(offset_in_bin[11] + offset_in_bin[9: 4 -1: -1] + rs2 + rs1 + _1412function + offset_in_bin[3::-1] + offset_in_bin[10] + _62opcode + _10alignment )
+    return bin2dec(offset_in_bin[:7] + rs2 + rs1 + _1412function + offset_in_bin[7:12] + _62opcode + _10alignment )
 
 
 def pop_push(params, function:str):
@@ -323,6 +325,10 @@ def assemble_code(code, memory, reg):
     for i,line in enumerate(code.splitlines()):
         removed_comment = line.split(";", 1)[0] if ";" in line else line
         if is_empty_string(removed_comment):
+            labels.append("")
+            instructions.append("")
+            parameters.append("")
+            line_index.append(i)
             continue
 
         label, operation = extract_label_and_operation(removed_comment)
@@ -340,7 +346,6 @@ def assemble_code(code, memory, reg):
         instructions.append(instruction)
         parameters.append(params)
         line_index.append(i)
-
 
     not_found_instr = []
     memory_address_to_add_instr_coded = 0

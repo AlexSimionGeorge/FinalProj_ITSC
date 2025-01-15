@@ -403,13 +403,16 @@ def unpack__b_3125offset_2420source_register_1915source_register_1412function_11
         instruction_name = "Unknown opcode"
 
     # calcul offset ##
-    offset11 = _3125offset >> 6
-    offset94 = _3125offset & 0b0111111
-    offset30 = _117offset >> 1
-    offset10 = _117offset & 0b1
-    imm = (offset11 << 10) | (offset94 << 3) | (offset30) | (offset10 << 9)
+    binstr = number_to_binary_string_32bit(instruction)
+    first = binstr[:7]
+    second = binstr[20:25]
+    ans = first + second
+    ans = binary_string_to_number(ans)
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", binstr)
+    print(first, second)
 
-    print("ADRESA LA CARE VREAU SA SAR:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", imm)
+    imm = ans
+    print("ADRESA LA CARE VREAU SA SAR:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", ans)
 
     # deci if-ul asta il am ca sa verific daca e negativ si sa pot da ##
     # extend la semn ##
@@ -448,12 +451,12 @@ def unpack__3120offset_1915source_register_1412function_117destination_register_
     _1412function = (instruction >> 12) & 0b111
     _1915source_register = (instruction >> 15) & 0b11111
     _3120offset = number_to_binary_string_32bit(instruction)
-    
+
     _3120offset = _3120offset[0:12]
     _3120offset = _3120offset[::-1]
-    
+
     _3120offset = binary_string_to_number(_3120offset)
-    
+
     rs = [k for k, v in abi_names.items() if v == _1915source_register][0]
     rd = [k for k, v in abi_names.items() if v == _117destination_register][0]
 
@@ -505,13 +508,13 @@ def unpack__3125offset_2420source_register_1915source_register_1412function_117o
     rs2 = (instruction >> 20) & 0b11111
     imm_high = (instruction >> 25) & 0b1111111
     imm_high = revert(imm_high)
-    
+
     print("UNPACKER PRIMU:", bin(imm_high))
     print("UNPACKER AL DOILEA:", bin(imm_low))
-    
-    
+
+
     immediate = (imm_high << 5) | imm_low
-    
+
 
     rs1_name = [k for k, v in abi_names.items() if v == rs1][0]
     rs2_name = [k for k, v in abi_names.items() if v == rs2][0]
@@ -573,7 +576,7 @@ def unpack_jalr(mem, address, instructioni):
 
 ## test 2147616111 ##
 def unpack_jal(mem, address, instruction):
-    instruction = mem[nr_to_tuple(address)] 
+    instruction = mem[nr_to_tuple(address)]
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
@@ -765,7 +768,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
                     f"x{abi_names[decoded['rs1']]}",
                     decoded["immediate"],
                 ]
-                
+
             elif opcode_bin == "1101111":  # JAL
                 execution_args = [
                     f"x{abi_names[decoded['rd']]}",
