@@ -610,13 +610,15 @@ def push(rd, a, b, mem, reg, mappingpc):
     print( "core.py", f"{rd} = {reg[rd]}, ")
     lines, columns = cell2linescolumns(reg[sp])
     mem[lines, columns] = reg[rd]
-    reg['x2'] = reg['x2']  - 1
+    reg['x2'] = reg['x2'] - 1
     reg = increment_pc(reg, mappingpc) 
     return mem, reg
 
 ## pop from stack ## 
-def pop(rd, mem, reg, mappingpc):
+def pop(rd, a, b, mem, reg, mappingpc):
+    reg['x2'] = reg['x2'] + 1
     lines, columns = cell2linescolumns(reg[sp])
+    print("IN CORE.PY FOR POP:", reg['x2'], lines, columns)
     reg[rd] = mem[lines, columns]
     mem[lines, columns] = 0
     reg = increment_pc(reg, mappingpc) 

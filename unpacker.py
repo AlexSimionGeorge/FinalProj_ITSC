@@ -105,7 +105,15 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
     _1915destination_register = (instruction >> 7) & 0b1111111
-    _3125immediate_value = (instruction >> 12) & 0b111111111111111111111
+    #_3125immediate_value = (instruction >> 12) & 0b111111111111111111111
+
+    instruction = number_to_binary_string_32bit(instruction)
+    
+    _3125immediate_value = instruction[0:19]
+    _3125immediate_value = _3125immediate_value[::-1]
+    
+    _3125immediate_value = binary_string_to_number(_3125immediate_value)
+
 
     rd = [k for k, v in abi_names.items() if v == _1915destination_register][0]
 
@@ -113,7 +121,8 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
     print("unpacker:", opcode_bin)
     instruction_name = None
 
-    value = remove_trailing_zeros_and_revert(_3125immediate_value)
+
+    value = _3125immediate_value
 
     if opcode_bin in instruction_set:
         instruction_name = instruction_set[opcode_bin]
