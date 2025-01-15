@@ -193,9 +193,9 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
             func3_bin = f"{_1412function:03b}"
             if func3_bin in current_level:
                 next_level = current_level[func3_bin]
-                print("TESTESTESTSETSETSETSE", next_level)
                 if isinstance(next_level, dict):
-                    imm_bin = f"{_3120immediate_value:012b}"
+                    cod_bin = number_to_binary_string_32bit(instruction)
+                    imm_bin = cod_bin[0:5]
                     if imm_bin in next_level:
                         instruction_name = next_level[imm_bin]
                     else:
@@ -236,65 +236,65 @@ def unpack__3120immediate_1915source_register_1412function_117destination_regist
 ##########################################
 
 
-def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
-    instruction = mem[nr_to_tuple(address)]
+# def unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, address, instructioni):
+#     instruction = mem[nr_to_tuple(address)]
 
-    _10alignment = instruction & 0b11
-    _62opcode = (instruction >> 2) & 0b11111
-    _117destination_register = (instruction >> 7) & 0b11111
-    _1412function = (instruction >> 12) & 0b111
-    _1915source_register = (instruction >> 15) & 0b11111
-    _2420shamt = (instruction >> 20) & 0b11111
-    _2625control_bits = (instruction >> 25) & 0b11
-    _3127opcode = (instruction >> 27) & 0b11111
+#     _10alignment = instruction & 0b11
+#     _62opcode = (instruction >> 2) & 0b11111
+#     _117destination_register = (instruction >> 7) & 0b11111
+#     _1412function = (instruction >> 12) & 0b111
+#     _1915source_register = (instruction >> 15) & 0b11111
+#     _2420shamt = (instruction >> 20) & 0b11111
+#     _2625control_bits = (instruction >> 25) & 0b11
+#     _3127opcode = (instruction >> 27) & 0b11111
 
-    opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
+#     opcode_bin = f"{_62opcode:05b}{_10alignment:02b}"
 
-    instruction_name = None
+#     instruction_name = None
 
-    print("TESTSETSTESTSETSETSET,")
-    if opcode_bin in instruction_set:
-        current_level = instruction_set[opcode_bin]
+#     print("TESTSETSTESTSETSETSET,")
+#     if opcode_bin in instruction_set:
+#         current_level = instruction_set[opcode_bin]
 
-        if isinstance(current_level, dict):
-            # try function bits
-            func3_bin = f"{_1412function:03b}"
-            if func3_bin in current_level:
-                next_level = current_level[func3_bin]
-                # nested case if I need to search deeper
-                if isinstance(next_level, dict):
-                    funct7_bin = f"{_3127opcode:05b}"
-                    if funct7_bin in next_level:
-                        instruction_name = next_level[funct7_bin]
-                    else:
-                        instruction_name = "Unknown function"
-                else:
-                    instruction_name = next_level
-            else:
-                instruction_name = "Unknown function"
-        else:
-            instruction_name = current_level
-    else:
-        instruction_name = "Unknown opcode"
+#         if isinstance(current_level, dict):
+#             # try function bits
+#             func3_bin = f"{_1412function:03b}"
+#             if func3_bin in current_level:
+#                 next_level = current_level[func3_bin]
+#                 # nested case if I need to search deeper
+#                 if isinstance(next_level, dict):
+#                     funct7_bin = f"{_3127opcode:05b}"
+#                     if funct7_bin in next_level:
+#                         instruction_name = next_level[funct7_bin]
+#                     else:
+#                         instruction_name = "Unknown function"
+#                 else:
+#                     instruction_name = next_level
+#             else:
+#                 instruction_name = "Unknown function"
+#         else:
+#             instruction_name = current_level
+#     else:
+#         instruction_name = "Unknown opcode"
 
-    rs1 = get_register_name(_1915source_register)
-    rd = get_register_name(_117destination_register)
+#     rs1 = get_register_name(_1915source_register)
+#     rd = get_register_name(_117destination_register)
 
-    decoded_instruction = {
-        "opcode_higher": f"{_3127opcode:05b}",
-        "control_bits": f"{_2625control_bits:02b}",
-        "immediate_value": int(_2420shamt),
-        "source_register_1": rs1,
-        "function": f"{_1412function:03b}",
-        "destination_register": rd,
-        "opcode": f"{_62opcode:05b}",
-        "alignment": f"{_10alignment:02b}",
-        "decoded_function": instruction_name
-    }
+#     decoded_instruction = {
+#         "opcode_higher": f"{_3127opcode:05b}",
+#         "control_bits": f"{_2625control_bits:02b}",
+#         "immediate_value": int(_2420shamt),
+#         "source_register_1": rs1,
+#         "function": f"{_1412function:03b}",
+#         "destination_register": rd,
+#         "opcode": f"{_62opcode:05b}",
+#         "alignment": f"{_10alignment:02b}",
+#         "decoded_function": instruction_name
+#     }
 
-    # print("unpacker:", decoded_instruction)
+#     # print("unpacker:", decoded_instruction)
 
-    return decoded_instruction
+#     return decoded_instruction
 
 
 # unpack__3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(mem, 0)
@@ -722,9 +722,7 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
 
     # Ensure `decoded_function` is valid
     if decoded and "decoded_function" in decoded:
-        execution_function = decoded["decoded_function"]
-        print("___________________________", execution_function)
-            
+        execution_function = decoded["decoded_function"]          
         if callable(execution_function) or opcode_bin == "0010011":
             # Build arguments dynamically based on the instruction type
             if opcode_bin in {"0110111", "0010111"}:  # LUI, AUIPC

@@ -190,7 +190,7 @@ def sra(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Shift right arithmetic immediate
 def srai(rd, rs1, shamt, mem, reg, mappingpc):
-    reg[rd] = reg[rs1] >> extend_sign(shamt)
+    reg[rd] = reg[rs1] >> extend_sign(shamt, 5)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
