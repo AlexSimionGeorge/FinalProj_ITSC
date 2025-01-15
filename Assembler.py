@@ -420,7 +420,7 @@ def assemble_code(code, memory, reg):
 
     first_adr = list(initial_index_mapped_to_memory.keys())[0]
     reg['x3'] = first_adr
-
+    reg['x2'] = 369
     return reg, memory, initial_index_mapped_to_memory
 
 
