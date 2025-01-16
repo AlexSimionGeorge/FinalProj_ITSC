@@ -691,30 +691,19 @@ def decode_atomic_functions(mem, address, instructioni):
     _62opcode = instruction[25:30] 
     _10alignment = instruction[30:32]  
     
-    print("_____________________+++++++++++++++++++____________________", _62opcode + _10alignment)
 
-    dict_entry = f"{int(_62opcode + _10alignment, 2):05b}"
+    dict_entry = _62opcode + _10alignment
     
     rs1 = [k for k, v in abi_names.items() if v == int(_1915rs1, 2)][0]
     rs2 = [k for k, v in abi_names.items() if v == int(_2420rs2, 2)][0]
     rd = [k for k, v in abi_names.items() if v == int(_117rd, 2)][0]
     
     if dict_entry in instruction_set:
-        current_level = instruction_set[dict_entry]
-        
-        if isinstance(current_level, dict):
-            print("WWWWWWWWWWWWWWWWWWWWWWWWWWW", current_level)
-            current_level = current_level.get(_1412func3, "Unknown function")
-            print("WWWWWWWWWWWWWWWWWWWWWWWWWWW", current_level)
-            if isinstance(current_level, dict):
-                current_level = current_level.get(_3127func, "Unknown function")
-                
-                if isinstance(current_level, dict):
-                    current_level = current_level.get(_2420rs2, "Unknown function")
-        
-        decoded_function = current_level
-    else:
-        decoded_function = "Unknown function"
+        level1 = instruction_set[dict_entry]
+        if isinstance(level1, dict) and _1412func3 in level1:
+            level2 = level1[_1412func3]
+            if isinstance(level2, dict) and _3127func in level2:
+                decoded_function = level2[_3127func]
 
     decoded = {
         "opcode": dict_entry,
@@ -845,6 +834,13 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
                 execution_args = [
                     f"x{abi_names[decoded['rd']]}",
                     decoded["immediate"],
+                ]
+            
+            elif opcode_bin == "0101111":
+                execution_args = [
+                    f"x{abi_names[decoded['rd']]}",
+                    f"x{abi_names[decoded['rs2']]}",
+                    f"x{abi_names[decoded['rs1']]}",
                 ]
 
             # Execute the function
