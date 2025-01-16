@@ -568,7 +568,7 @@ def remu(rd, rs1, rs2, mem, reg, mappingpc):
 ## memory rs1 swap with rs2
 def amoswap_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     temp = reg[rd]
     reg[rd] = reg[rs2]
@@ -581,7 +581,7 @@ def amoswap_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 add with rs2 and load result
 def amoadd_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     reg[rd] += reg[rs2]
     mem[lines, columns] = reg[rd]
@@ -592,7 +592,7 @@ def amoadd_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 xor with rs2 and load result
 def amoxor_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] ^ reg[rs2]
     mem[lines, columns] = reg[rd]
@@ -603,7 +603,7 @@ def amoxor_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 and with rs2 and load result
 def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] & reg[rs2]
     mem[lines, columns] = reg[rd]
@@ -614,7 +614,7 @@ def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 or with rs2 and load result
 def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] | reg[rs2]
     mem[lines, columns] = reg[rd]
@@ -625,7 +625,7 @@ def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 compared with rs2 and load min result
 def amomin_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     if reg[rd] > reg[rs2]:
         reg[rd] = reg[rs2]
@@ -637,7 +637,7 @@ def amomin_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 compared with rs2 and load max result
 def amomax_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     if reg[rd] < reg[rs2]:
         reg[rd] = reg[rs2]
@@ -649,7 +649,7 @@ def amomax_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 compared with rs2 and load min result - unsigned
 def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
         reg[rd] = reg[rs2]
@@ -661,7 +661,7 @@ def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
 ## memory rs1 compared with rs2 and load max result - unsigned
 def amomaxu_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
-    lines, columns = cell2linescolumns(rs1)
+    lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
     if signed2unsigned(reg[rd]) < signed2unsigned(reg[rs2]):
         reg[rd] = reg[rs2]
