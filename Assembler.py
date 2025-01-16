@@ -265,7 +265,7 @@ functions = {
     "uret": lambda labels, params: bin2dec("00000" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
     "sret": lambda labels, params: bin2dec("00010" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
     "mret": lambda labels, params: bin2dec("00110" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
-    "wfi": lambda labels, params: bin2dec("00010" + "00" + "00101" + "00000" + "000" + "00000" + "11100" + "11"),
+    "wfi": lambda labels, params: bin2dec("00101" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
     "ret": lambda labels, params: bin2dec("10000" + "00" + "00010" + "00000" + "000" + "00000" + "11100" + "11"),
 
     "lb" : lambda labels, params: _3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(labels, params, _1412function="000", _62opcode="00000"),
