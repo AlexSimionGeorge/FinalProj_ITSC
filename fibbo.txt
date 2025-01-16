@@ -1,0 +1,34 @@
+.data
+    start_fib: .word 0x0
+    start_fib_1: .word 0x1
+    index_final: .word 0x13
+    one: .word 0x1
+
+.code
+    addi t1, zero, start_fib
+    addi t2, zero, start_fib_1
+    addi t0, zero, index_final ;in a0 se gaseste index
+    addi a6, zero, 0x32
+    sw t1, 0x0(a6)
+    addi a6, a6, 0x1
+    addi s2, zero, 0x1
+
+    push t0
+    push t2
+    push t1
+
+    jal a5, fib_recursiv
+
+fib_recursiv: pop a0
+    pop a1
+    add a2, a1, a0
+    pop a3
+    beq a3, zero, return
+    sub a3, a3, s2
+    sw a2, 0x0(a6)
+    addi a6, a6, 0x1
+    push a3
+    push a0
+    push a2
+    jal a4, fib_recursiv
+return: ret
