@@ -42,7 +42,7 @@ def extend_sign(value, bits):
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
 def signed2unsigned(value):
-#    unsigned_value = value & 0x7FFFFFFF + (2**32) * (value >> 32)
+#    unsigned_value = value & 0x7FFFFFFF + (2**31) * (value >> 32)
     unsigned_value = value & 0xFFFFFFFF
     return unsigned_value
 
@@ -189,7 +189,7 @@ def slli(rd, rs1, shamt, mem, reg, mappingpc):
 ## Shift right logical immediate
 def srli(rd, rs1, shamt, mem, reg, mappingpc):
     hardwired_zero(rd)
-    reg[rd] = reg[rs1] >> shamt
+    reg[rd] = (reg[rs1] & 0xFFFFFFFF) >> shamt
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -197,7 +197,7 @@ def srli(rd, rs1, shamt, mem, reg, mappingpc):
 ## Shift right logical ##c
 def srl(rd, rs1, rs2, mem, reg, mappingpc):
     hardwired_zero(rd)
-    reg[rd] = (reg[rs1] >> reg[rs2]) & 0x7FFFFFFF
+    reg[rd] = ((reg[rs1] & 0xFFFFFFFF) >> reg[rs2]) 
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
