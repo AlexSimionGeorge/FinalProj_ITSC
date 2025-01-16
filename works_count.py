@@ -1,7 +1,7 @@
 'lui', 'auipc', 
 'addi', 'slti', 'sltiu', 'xori', 'ori', 'andi',
 'slli', 'srli', 'srai',
-'add', 'sub', 'sll', 'slt', 'sltu', 'xor', 'srl', sra, 'or', 'and', 'mul', mulh, mulhsu, mulhu, 'div', 'divu', 'rem', 'remu',
+'add', 'sub', 'sll', 'slt', 'sltu', 'xor', 'srl', 'sra', 'or', 'and', 'mul', 'mulh', 'mulhsu', 'mulhu', 'div', 'divu', 'rem', 'remu',
 'jal', 'jalr',
 'sb', 'sh', 'sw',
 'beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu',
