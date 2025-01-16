@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from core import instruction_set
+from Core import instruction_set
 from Assembler import abi_names
 
 gp = "gp"

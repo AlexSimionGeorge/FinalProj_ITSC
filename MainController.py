@@ -1,6 +1,6 @@
 import tkinter as tk
 from Assembler import assemble_code, abi_names
-from unpacker import decode_and_execute_instruction
+from Processor import decode_and_execute_instruction
 
 current_line = 0
 previous_line = None
