@@ -511,7 +511,7 @@ def mul(rd, rs1, rs2, mem, reg, mappingpc):
 def mulh(rd, rs1, rs2, mem, reg, mappingpc):
     hardwired_zero(rd)
     temp = reg[rs1] * reg[rs2]
-    reg[rd] = extend_sign((temp & 0xFFFFFFFF00000000) >> 32)
+    reg[rd] = extend_sign((temp & 0xFFFFFFFF00000000) >> 32, 32)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
@@ -652,9 +652,6 @@ def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
-    print("RRRRRRRRRRRRRDDDDDDDDDDDD:      ",signed2unsigned(reg[rd]))
-    print("RRRRRRRRRRRRRSSSSSSSSS2:      "  ,signed2unsigned(reg[rs2]))
-    print("RRRRRRRRRRRRRSSSSSSSSS2:      ", reg[rs2])
     if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
         reg[rd] = reg[rs2]
     mem[lines, columns] = reg[rd]
