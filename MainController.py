@@ -11,7 +11,7 @@ mem = {(line, column): 0 for line in range(37) for column in range(10)}
 reg = {f"x{i}": 0 for i in range(32)}
 
 abi_names_display = list(abi_names.keys())
-auto_run_speed = 500
+auto_run_speed = 90
 auto_run = False
 
 def main():
@@ -215,13 +215,12 @@ def main():
     def swap_to_compile_view():
         input_code.pack_forget()
         run_button.pack_forget()
-        input_speed.pack_forget()
         compile_view()
 
     def input_view():
         input_code.pack()
         run_button.pack()
-        input_speed.pack()
+
 
 
 
@@ -232,7 +231,6 @@ def main():
 
     # Widget definitions
     input_code = tk.Text(master, height=50, width=100)
-    input_speed = tk.Text(master, height=1, width=100)
     run_button = tk.Button(master, text="Run", command=swap_to_compile_view)
     input_view()
     
