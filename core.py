@@ -4,6 +4,10 @@ ra = "x1"
 sp = "x2" 
 pc = "x3"
 
+def hardwired_zero(rd):
+    if (rd == zero):
+        exit()
+
 def increment_pc(reg, mappingpc):
     print("IN INCREMENT_PC:", mappingpc, reg[pc])
     index_in_memory = mappingpc[reg[pc]]
@@ -45,6 +49,7 @@ def cell2linescolumns(value):
 
 ## add ##
 def add(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] + reg[rs2]
     reg = increment_pc(reg, mappingpc) 
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -52,6 +57,7 @@ def add(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## add immediate value ##
 def addi(rd, rs1, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] + extend_sign(immediate_value, 12)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -59,6 +65,7 @@ def addi(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## sub reg to reg ##
 def sub(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] - reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -66,6 +73,7 @@ def sub(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## LUI: Load upper immediate ##
 def lui(rd, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = immediate_value << 12
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -73,6 +81,7 @@ def lui(rd, immediate_value, mem, reg, mappingpc):
 
 ## AND ##
 def and_op(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] & reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -80,6 +89,7 @@ def and_op(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## OR ##
 def or_op(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] | reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -87,6 +97,7 @@ def or_op(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## XOR ##
 def xor_op(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] ^ reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -94,6 +105,7 @@ def xor_op(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Set less than ##
 def slt(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     if reg[rs1] < reg[rs2]:
         reg[rd] = 1
     else:
@@ -104,6 +116,7 @@ def slt(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## AUIPC: Add upper immediate to program counter ##
 def auipc(rd, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[pc] + (immediate_value << 12)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -111,6 +124,7 @@ def auipc(rd, immediate_value, mem, reg, mappingpc):
 
 ## Set less than immediate ##
 def slti(rd, rs1, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     if (reg[rs1] < extend_sign(immediate_value, 12)):
         reg[rd] = 1
     else:
@@ -121,6 +135,7 @@ def slti(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## Set less than immediate unsigned ##
 def sltiu(rd, rs1, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     if (signed2unsigned(reg[rs1]) < signed2unsigned(extend_sign(immediate_value, 12))):
         reg[rd] = 1
     else:
@@ -131,6 +146,7 @@ def sltiu(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## Set less than rs2 unsigned
 def sltu(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     if (signed2unsigned(reg[rs1]) < signed2unsigned(reg[rs2])):
         reg[rd] = 1
     else:
@@ -143,6 +159,7 @@ def sltu(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## XOR with immediate value ##
 def xori(rd, rs1, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] ^ extend_sign(immediate_value, 12)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -150,6 +167,7 @@ def xori(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## Shift left logical ##
 def sll(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] << reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -157,6 +175,7 @@ def sll(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Shift left logical immediate
 def slli(rd, rs1, shamt, mem, reg, mappingpc):
+    hardwired_zero(rd)
     print("INAINTE")
     print(type(int(shamt)), rd, rs1,)
     reg[rd] = reg[rs1] << int(shamt)
@@ -167,6 +186,7 @@ def slli(rd, rs1, shamt, mem, reg, mappingpc):
 
 ## Shift right logical immediate
 def srli(rd, rs1, shamt, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] >> shamt
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -174,6 +194,7 @@ def srli(rd, rs1, shamt, mem, reg, mappingpc):
 
 ## Shift right logical ##
 def srl(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = (reg[rs1] >> reg[rs2]) & 0xFFFFFFFF
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -181,6 +202,7 @@ def srl(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Shift right arithmetic ##
 def sra(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] >> reg[rs2]
     if reg[rs1] < 0:  # Sign-extend the shift
         reg[rd] |= (0xFFFFFFFF << (32 - reg[rs2]))
@@ -190,6 +212,7 @@ def sra(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Shift right arithmetic immediate
 def srai(rd, rs1, shamt, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] >> extend_sign(shamt, 5)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -197,6 +220,7 @@ def srai(rd, rs1, shamt, mem, reg, mappingpc):
 
 ## Set equal ##
 def seq(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = 1 if reg[rs1] == reg[rs2] else 0
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -204,6 +228,7 @@ def seq(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## AND immediate ##
 def andi(rd, rs1, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     print("ANDI:", rd, rs1, immediate_value)
     print("TIP ANDI:", type(rd), type(rs1), type(immediate_value))
     reg[rd] = reg[rs1] & extend_sign(int(immediate_value), 12)
@@ -213,6 +238,7 @@ def andi(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## OR immediate ##
 def ori(rd, rs1, immediate_value, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] | extend_sign(immediate_value, 12)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -220,60 +246,60 @@ def ori(rd, rs1, immediate_value, mem, reg, mappingpc):
 
 ## CSR Read and Write ##
 def csrrw(rd, csr, rs1, mem, reg, mappingpc):
-    if rd != reg[zero]:
-        lines, columns = cell2linescolumns(csr)
-        reg[rd] = mem[lines, columns]
-        mem[lines, columns] = reg[rs1]
+    hardwired_zero(rd)
+    lines, columns = cell2linescolumns(csr)
+    reg[rd] = mem[lines, columns]
+    mem[lines, columns] = reg[rs1]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"CSRRW: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
 
 ## CSR Read and Set bits in CSR
 def csrrs(rd, csr, rs1, mem, reg, mappingpc):
-    if rd != reg[zero]:
-        lines, columns = cell2linescolumns(csr)
-        reg[rd] = mem[lines, columns]
-        mem[lines, columns] = reg[rs1] | reg[rd]
+    hardwired_zero(rd)
+    lines, columns = cell2linescolumns(csr)
+    reg[rd] = mem[lines, columns]
+    mem[lines, columns] = reg[rs1] | reg[rd]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrs: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
 
 ## CSR Read and clear bits in CSR
 def csrrc(rd, csr, rs1, mem, reg, mappingpc):
-    if rd != reg[zero]:
-        lines, columns = cell2linescolumns(csr)
-        reg[rd] = mem[lines, columns]
-        mem[lines, columns] = reg[rs1] & ~(reg[rd])
+    hardwired_zero(rd)
+    lines, columns = cell2linescolumns(csr)
+    reg[rd] = mem[lines, columns]
+    mem[lines, columns] = reg[rs1] & ~(reg[rd])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrc: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
 
 ## CSR Read and Write immediate
 def csrrwi(rd, csr, uimm, mem, reg, mappingpc):
-    if rd != reg[zero]:
-        lines, columns = cell2linescolumns(csr)
-        reg[rd] = mem[lines, columns]
-        mem[lines, columns] = uimm & 0x0000001F
+    hardwired_zero(rd)
+    lines, columns = cell2linescolumns(csr)
+    reg[rd] = mem[lines, columns]
+    mem[lines, columns] = uimm & 0x0000001F
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrwi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
 
 ## CSR Read and Set bits immediate in CSR
 def csrrsi(rd, csr, uimm, mem, reg, mappingpc):
-    if rd != reg[zero]:
-        lines, columns = cell2linescolumns(csr)
-        reg[rd] = mem[lines, columns]
-        mem[lines, columns] = (uimm & 0x0000001F) | reg[rd]
+    hardwired_zero(rd)
+    lines, columns = cell2linescolumns(csr)
+    reg[rd] = mem[lines, columns]
+    mem[lines, columns] = (uimm & 0x0000001F) | reg[rd]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrsi: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
 
 ## CSR Read and clear bits immediate in CSR
 def csrrci(rd, csr, uimm, mem, reg, mappingpc):
-    if rd != reg[zero]:
-        lines, columns = cell2linescolumns(csr)
-        reg[rd] = mem[lines, columns]
-        mem[lines, columns] = (uimm & 0x0000001F) & ~(reg[rd])
+    hardwired_zero(rd)
+    lines, columns = cell2linescolumns(csr)
+    reg[rd] = mem[lines, columns]
+    mem[lines, columns] = (uimm & 0x0000001F) & ~(reg[rd])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"csrrci: {rd} = {reg[rd]}, CSR[{csr}] = {mem[csr]}")
     return mem, reg
@@ -316,6 +342,7 @@ def wfi(mem, reg, mappingpc):
 
 ## Load a 8-bit value from memory
 def lb(rd, offset, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     temp = ((temp & 0x80000000) >> 24) or (temp & 0x0000007F)
@@ -326,6 +353,7 @@ def lb(rd, offset, rs1, mem, reg, mappingpc):
 
 ## Load a 16-bit value from memory
 def lh(rd, offset, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     temp = ((temp & 0x80000000) >> 16) or (temp & 0x00007FFF)
@@ -336,6 +364,7 @@ def lh(rd, offset, rs1, mem, reg, mappingpc):
 
 ## Load a 32-bit value from memory
 def lw(rd, offset, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     reg[rd] = temp
@@ -345,6 +374,7 @@ def lw(rd, offset, rs1, mem, reg, mappingpc):
 
 ## Load a 8-bit value from memory zero-extend
 def lbu(rd, offset, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     reg[rd] = temp & 0x000000FF
@@ -354,6 +384,7 @@ def lbu(rd, offset, rs1, mem, reg, mappingpc):
 
 ## Load a 16-bit value from memory zero-extend
 def lhu(rd, offset, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
     reg[rd] = temp & 0x0000FFFF
@@ -389,6 +420,7 @@ def sw(rs2, offset, rs1, mem, reg, mappingpc):
 
 ## Jump and link (ADRESARE DIRECTA)
 def jal(rd, offset, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg = jump_and_ra(rd, extend_sign(offset, 20), reg, mappingpc)
     reg["x5"] = 0
     reg["x6"] = 0
@@ -401,6 +433,7 @@ def jal(rd, offset, mem, reg, mappingpc):
 
 ## Jump and link register (ADRESARE DIRECTA)
 def jalr(rd, rs1, offset, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg = jump_and_ra(rd, reg[rs1] + extend_sign(offset, 12), reg, mappingpc)
     reg["x5"] = 0
     reg["x6"] = 0
@@ -463,6 +496,7 @@ def bgeu(rs1, rs2, offset, mem, reg, mappingpc):
 
 ## Multiplication
 def mul(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     temp = reg[rs1] * reg[rs2]
     reg[rd] = (temp & 0xFFFFFFFF)
     reg = increment_pc(reg, mappingpc)
@@ -471,6 +505,7 @@ def mul(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Multiplication upper stored
 def mulh(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     temp = reg[rs1] * reg[rs2]
     reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
     reg = increment_pc(reg, mappingpc)
@@ -479,6 +514,7 @@ def mulh(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Multiplication upper stored rs1 signed, rs2 unsigned
 def mulhsu(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     temp = reg[rs1] * signed2unsigned(reg[rs2])
     reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
     reg = increment_pc(reg, mappingpc)
@@ -487,6 +523,7 @@ def mulhsu(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Multiplication upper stored rs1 unsigned, rs2 unsigned
 def mulhu(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     temp = signed2unsigned(reg[rs1]) * signed2unsigned(reg[rs2])
     reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
     reg = increment_pc(reg, mappingpc)
@@ -495,6 +532,7 @@ def mulhu(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Division
 def div(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] // reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -502,6 +540,7 @@ def div(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Division unsigned
 def divu(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = signed2unsigned(reg[rs1]) // signed2unsigned(reg[rs2])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -509,6 +548,7 @@ def divu(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Modulo
 def rem(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = reg[rs1] % reg[rs2]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -516,6 +556,7 @@ def rem(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## Modulo unsigned
 def remu(rd, rs1, rs2, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg[rd] = signed2unsigned(reg[rs1]) % signed2unsigned(reg[rs2])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -523,6 +564,7 @@ def remu(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## memory rs1 swap with rs2
 def amoswap_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     temp = reg[rd]
@@ -535,6 +577,7 @@ def amoswap_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 add with rs2 and load result
 def amoadd_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     reg[rd] += reg[rs2]
@@ -545,6 +588,7 @@ def amoadd_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 xor with rs2 and load result
 def amoxor_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] ^ reg[rs2]
@@ -555,6 +599,7 @@ def amoxor_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 and with rs2 and load result
 def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] and reg[rs2]
@@ -565,6 +610,7 @@ def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 or with rs2 and load result
 def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     reg[rd] = reg[rd] or reg[rs2]
@@ -575,6 +621,7 @@ def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 compared with rs2 and load min result
 def amomin_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     if reg[rd] > reg[rs2]:
@@ -586,6 +633,7 @@ def amomin_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 compared with rs2 and load max result
 def amomax_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     if reg[rd] < reg[rs2]:
@@ -597,6 +645,7 @@ def amomax_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 compared with rs2 and load min result - unsigned
 def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
@@ -608,6 +657,7 @@ def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
 
 ## memory rs1 compared with rs2 and load max result - unsigned
 def amomaxu_w(rd, rs2, rs1, mem, reg, mappingpc):
+    hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
     if signed2unsigned(reg[rd]) < signed2unsigned(reg[rs2]):
@@ -628,6 +678,7 @@ def push(rd, a, b, mem, reg, mappingpc):
 
 ## pop from stack ## 
 def pop(rd, a, b, mem, reg, mappingpc):
+    hardwired_zero(rd)
     reg['x2'] = reg['x2'] + 1
     lines, columns = cell2linescolumns(reg[sp])
     print("IN CORE.PY FOR POP:", reg['x2'], lines, columns)
