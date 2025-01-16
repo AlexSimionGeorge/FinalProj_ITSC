@@ -42,7 +42,8 @@ def extend_sign(value, bits):
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
 def signed2unsigned(value):
-    unsigned_value = value & 0x7FFFFFFF + (2**32) * (value >> 32)
+#    unsigned_value = value & 0x7FFFFFFF + (2**32) * (value >> 32)
+    unsigned_value = value & 0xFFFFFFFF
     return unsigned_value
 
 def cell2linescolumns(value):
@@ -651,6 +652,9 @@ def amominu_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1])
     reg[rd] = mem[lines, columns]
+    print("RRRRRRRRRRRRRDDDDDDDDDDDD:      ",signed2unsigned(reg[rd]))
+    print("RRRRRRRRRRRRRSSSSSSSSS2:      "  ,signed2unsigned(reg[rs2]))
+    print("RRRRRRRRRRRRRSSSSSSSSS2:      ", reg[rs2])
     if signed2unsigned(reg[rd]) > signed2unsigned(reg[rs2]):
         reg[rd] = reg[rs2]
     mem[lines, columns] = reg[rd]
