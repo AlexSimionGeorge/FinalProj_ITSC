@@ -510,7 +510,7 @@ def mul(rd, rs1, rs2, mem, reg, mappingpc):
 def mulh(rd, rs1, rs2, mem, reg, mappingpc):
     hardwired_zero(rd)
     temp = reg[rs1] * reg[rs2]
-    reg[rd] = (temp & 0xFFFFFFFF00000000) >> 32
+    reg[rd] = extend_sign((temp & 0xFFFFFFFF00000000) >> 32)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
