@@ -6,6 +6,7 @@ pc = "x3"
 
 def hardwired_zero(rd):
     if (rd == zero):
+        print("core.py: register zero is harwired to zero")
         exit()
 
 def increment_pc(reg, mappingpc):
