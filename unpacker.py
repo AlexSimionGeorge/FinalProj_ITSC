@@ -637,38 +637,102 @@ def unpack_system(mem, address, instructioni):
 
     funct3_bin = f"{_1412funct3:03b}"
     funct12_bin = f"{_3120funct12:012b}"
+    dict_entry = _62opcode << 2 | _10alignment
+    dict_entry = f"{dict_entry:05b}"
 
-    if funct3_bin == "000":
-        if funct12_bin == "000000000000":
-            decoded_function = "ecall"
-        elif funct12_bin == "000000000001":
-            decoded_function = "ebreak"
-        elif funct12_bin == "000000000010":
-            if _1915rs1 == 0:  # verific daca sunt diferite aici
-                decoded_function = "uret"
-            elif _1915rs1 == 2:
-                decoded_function = "sret"
-            elif _1915rs1 == 6:
-                decoded_function = "mret"
-            elif _1915rs1 == 5:
-                decoded_function = "wfi"
-            elif _1915rs1 == 16:
-                decoded_function = "ret"
+    instruction = number_to_binary_string_32bit(instruction)
+
+
+    first_search = instruction[7:12]
+    second_search = instruction[0:5]
+
+    decoded_function = None
+    if dict_entry in instruction_set:
+        current_level = instruction_set[dict_entry]  
+        if isinstance(current_level, dict):
+            current_level = current_level.get(funct3_bin, None)
+            if isinstance(current_level, dict):
+                current_level = current_level.get(first_search, None)
+                if isinstance(current_level, dict):
+                    decoded_function = current_level.get(second_search, "Unknown function")
+                else:
+                    decoded_function = current_level
             else:
-                decoded_function = "unknown_system"
+                decoded_function = current_level
         else:
-            decoded_function = "unknown_system"
+            decoded_function = current_level
     else:
-        decoded_function = "unknown_system"
+        decoded_function = "Unknown function"
 
-    return {
-        "opcode": "1110011",
+    decoded = {
+        "opcode": dict_entry,
         "rd": rd,
         "rs1": rs1,
         "funct3": funct3_bin,
         "funct12": funct12_bin,
-        "decoded_function": decoded_function
+        "decoded_function": decoded_function,
     }
+
+    return decoded
+
+
+def decode_atomic_functions(mem, address, instructioni):
+    instruction = mem[nr_to_tuple(address)]
+    
+    instruction = number_to_binary_string_32bit(instruction)
+    
+    _3127func = instruction[0:5]   
+    _26aq = instruction[5]         
+    _25rl = instruction[6]         
+    _2420rs2 = instruction[7:12]   
+    _1915rs1 = instruction[12:17] 
+    _1412func3 = instruction[17:20] 
+    _117rd = instruction[20:25]   
+    _62opcode = instruction[25:30] 
+    _10alignment = instruction[30:32]  
+    
+    print("_____________________+++++++++++++++++++____________________", _62opcode + _10alignment)
+
+    dict_entry = f"{int(_62opcode + _10alignment, 2):05b}"
+    
+    rs1 = [k for k, v in abi_names.items() if v == int(_1915rs1, 2)][0]
+    rs2 = [k for k, v in abi_names.items() if v == int(_2420rs2, 2)][0]
+    rd = [k for k, v in abi_names.items() if v == int(_117rd, 2)][0]
+    
+    if dict_entry in instruction_set:
+        current_level = instruction_set[dict_entry]
+        
+        if isinstance(current_level, dict):
+            print("WWWWWWWWWWWWWWWWWWWWWWWWWWW", current_level)
+            current_level = current_level.get(_1412func3, "Unknown function")
+            print("WWWWWWWWWWWWWWWWWWWWWWWWWWW", current_level)
+            if isinstance(current_level, dict):
+                current_level = current_level.get(_3127func, "Unknown function")
+                
+                if isinstance(current_level, dict):
+                    current_level = current_level.get(_2420rs2, "Unknown function")
+        
+        decoded_function = current_level
+    else:
+        decoded_function = "Unknown function"
+
+    decoded = {
+        "opcode": dict_entry,
+        "rd": rd,
+        "rs1": rs1,
+        "rs2": rs2,
+        "func3": _1412func3,
+        "func": _3127func,
+        "aq": _26aq,
+        "rl": _25rl,
+        "alignment": _10alignment,
+        "decoded_function": decoded_function,
+    }
+
+    print("DWQOPDMQPOWDMOPWQMDPWOQMDPOWMQOPDMWQPODMQWPO:", decoded["decoded_function"])
+
+    return decoded
+
 
 
 ##########################################
@@ -711,15 +775,18 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
 
     elif opcode_bin == "1100111":  # JALR
         decoded = unpack_jalr(mem, address, None)
-
+        
     elif opcode_bin == "1101111":  # JAL
         decoded = unpack_jal(mem, address, None)
-
+        
     elif opcode_bin == "1110011":  # System instructions
         decoded = unpack_system(mem, address, None)
+        
     elif opcode_bin == "0100011":
         decoded = unpack__3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(mem, address, None)
 
+    elif opcode_bin == "0101111":
+        decoded = decode_atomic_functions(mem, address, None)
     # Ensure `decoded_function` is valid
     if decoded and "decoded_function" in decoded:
         execution_function = decoded["decoded_function"]          
@@ -798,50 +865,4 @@ def decode_and_execute_instruction(mem, reg, initial_index_mapped_to_memory):
     return mem, reg
 
 
-if __name__ == "__main__":
-    reg['R3'] = 0  # Initialize gp (x3) to 0
 
-    # Test data
-    test_instructions = [
-        2147681171,
-        2147716627,
-        2148402451
-    ]
-
-    test_instructions2 = [
-        172803,
-        172931,
-        7540275,
-        29532195,
-        11406179,
-        18875759,
-        2684356755,
-        115,
-    ]
-
-    # Load instructions into memory sequentially
-    for i, instr in enumerate(test_instructions):
-        mem[i] = instr
-
-    print("unpacker:", "\nStarting execution...\n")
-
-    # Execute instructions sequentially
-    for i in range(len(test_instructions)):
-        print("unpacker:", f"\nExecuting instruction at address {i}")
-        print("unpacker:", f"Current pc value: {reg['R3']}")
-        next_address = decode_and_execute_instruction(mem, reg)
-        print("unpacker:", f"Instruction executed, pc is now: {reg['R3']}")
-
-    # Print final state
-    print("unpacker:", "\nFinal Register State:")
-    print("unpacker:", "-" * 40)
-    for i in range(32):
-        reg_name = [k for k, v in abi_names.items() if v == i][0]
-        print("unpacker:", f"{reg_name} (x{i}): {reg[f'R{i}']}")
-        if i == 3:  # Special highlight for gp
-            print("unpacker:", f">>> pc final value: {reg['R3']} <<<")
-
-    print("unpacker:", "\nNon-zero Memory Locations:")
-    print("unpacker:", "-" * 40)
-    for addr in range(len(test_instructions)):
-        print("unpacker:", f"Address {addr}: {mem[addr]} (0x{mem[addr]:08x})")
