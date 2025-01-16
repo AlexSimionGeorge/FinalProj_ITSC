@@ -104,7 +104,7 @@ def unpack__3112immediate_117destination_register_62opcode_10alignment(mem, addr
 
     _10alignment = instruction & 0b11
     _62opcode = (instruction >> 2) & 0b11111
-    _1915destination_register = (instruction >> 7) & 0b1111111
+    _1915destination_register = (instruction >> 7) & 0b111111
     #_3125immediate_value = (instruction >> 12) & 0b111111111111111111111
 
     instruction = number_to_binary_string_32bit(instruction)
