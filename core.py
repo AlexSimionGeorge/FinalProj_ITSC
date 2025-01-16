@@ -346,7 +346,7 @@ def lb(rd, offset, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
-    temp = ((temp & 0x80000000) >> 24) or (temp & 0x0000007F)
+    temp = (temp & 0x000000FF)
     reg[rd] = extend_sign(temp, 8)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"LB: {rd} = {reg[rd]}")
@@ -357,8 +357,10 @@ def lh(rd, offset, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
     lines, columns = cell2linescolumns(reg[rs1] + extend_sign(offset, 12))
     temp = mem[lines, columns]
-    temp = ((temp & 0x80000000) >> 16) or (temp & 0x00007FFF)
+    temp = (temp & 0x0000FFFF)
+    print("core: _________________________________________________-", temp)
     reg[rd] = extend_sign(temp, 16)
+    print("core: rd________________________________________________", reg[rd])
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"LH: {rd} = {reg[rd]}")
     return mem, reg
