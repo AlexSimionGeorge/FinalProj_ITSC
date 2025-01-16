@@ -52,7 +52,7 @@ def add(rd, rs1, rs2, mem, reg, mappingpc):
 
 ## add immediate value ##
 def addi(rd, rs1, immediate_value, mem, reg, mappingpc):
-    reg[rd] = reg[rs1] + int(immediate_value)
+    reg[rd] = reg[rs1] + extend_sign(immediate_value, 12)
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
