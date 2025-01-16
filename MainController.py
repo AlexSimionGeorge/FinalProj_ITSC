@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 from Assembler import assemble_code, abi_names
 from Processor import decode_and_execute_instruction
@@ -10,6 +11,8 @@ mem = {(line, column): 0 for line in range(37) for column in range(10)}
 reg = {f"x{i}": 0 for i in range(32)}
 
 abi_names_display = list(abi_names.keys())
+auto_run_speed = 500
+auto_run = False
 
 def main():
     def set_row_column(memory_displayed_list, row, col, val):
@@ -106,42 +109,21 @@ def main():
                 previous_line = execute_line_i(current_line, code_displayed_list, registers_displayed_list, memory_displayed_list, previous_line)
                 current_line = reg['x3'] # adc PC care  a fost modificat
 
+        def autorun_function():
+            global auto_run
+            auto_run = not auto_run  # Toggle the state of auto_run
+            if auto_run:
+                auto_step()
+
+        def auto_step():
+            global auto_run
+            global auto_run_speed
+            if auto_run:
+                step_through_lines()
+                master.after(auto_run_speed, auto_step)
+        global auto_run_speed
+
         code = input_code.get(1.0, tk.END)
-#         code = """.data           ; 0
-# vector:     .word 0x5               ;1
-# vector1:    .word 0x6			;2
-# vector2:    .word 0x7			;3
-# vector3:    .word 0x8             ;4
-# .code           ; 5
-# _start:addi s0, s0, 0x28	   		;6
-#      addi t0, t0, vector             ; 7
-#     lw t0, 0x0(s0)				    ;8
-#     addi s1, s1, 0x4				;9
-#     addi s6, s6, 0x1                ; 10
-# ;11
-# parse_vector: beq s1, zero, process_done   ; 12
-#     lw t4, 0x0(s0)                ; 13
-#     addi t4, t4, 0xA              ; 14
-#     ; Check if the element is odd or even	;15
-#     andi s2, t4, 0x1              ;16
-#     beq s2, zero, push_even      ; 17
-#     ori s2, s2, 0x1                    ; 18
-#     jal ra, push_to_stack              ; 19
-# push_even: andi s2, s2, 0x0                    ; Set t5 to 0 for even                 ; 20
-# push_to_stack: push s2                                                        ;21
-#     ; Move to the next element in the vector					;22
-#     lw t4, 0x0(s0)								;23
-#     sub t4, t4, s0								;24
-#     sw t4, 0x0(s0)            ; Move to the next element             ; 25
-#     addi s1, s1, 0xFFFFFFFF             ; Decrease the loop counter            ; 26
-#     jal ra, parse_vector              ; Loop back to parse_vector            ; 27
-# process_done:pop t1								;28
-#     pop t2									;29
-#     pop t3									;30
-#     addi t0, t0, 0xFFFFFF01    							;31
-#     sw   t0, 0x10(zero)  									;32
-# program_end: lb a7, 0x10(zero)              ; Exit code for ecall           ; 33
-#     ecall                       ; Exit program    				;34"""
 
         code = "\n".join(line for line in code.splitlines() if line.strip())#sterge lin goale
         code = process_lines(code)
@@ -226,16 +208,20 @@ def main():
         # Step button
         step_button = tk.Button(master, text="Step", command=step_through_lines)
         step_button.grid(row=len(lines) + 2, column=0, pady=10)
+        auto_run_button = tk.Button(master, text="Auto Run", command=autorun_function)
+        auto_run_button.grid(row=len(lines) + 3, column=0, pady=10)
 
 
     def swap_to_compile_view():
         input_code.pack_forget()
         run_button.pack_forget()
+        input_speed.pack_forget()
         compile_view()
 
     def input_view():
         input_code.pack()
         run_button.pack()
+        input_speed.pack()
 
 
 
@@ -246,6 +232,7 @@ def main():
 
     # Widget definitions
     input_code = tk.Text(master, height=50, width=100)
+    input_speed = tk.Text(master, height=1, width=100)
     run_button = tk.Button(master, text="Run", command=swap_to_compile_view)
     input_view()
     
