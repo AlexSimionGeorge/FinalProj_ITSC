@@ -4,6 +4,9 @@ ra = "x1"
 sp = "x2" 
 pc = "x3"
 
+def end_program_function():
+    pass
+
 def hardwired_zero(rd):
     if (rd == zero):
         print("core.py: register zero is harwired to zero")
@@ -307,12 +310,11 @@ def csrrci(rd, csr, uimm, mem, reg, mappingpc):
 
 ## Stops execution
 def ecall(mem, reg, mappingpc):
-    exit()
+    end_program_function()
 
 ## Stops execution
 def ebreak(mem, reg, mappingpc):
-    print( "core.py", "No debugging mode enabled")
-    exit()
+    end_program_function()
 
 def ret(mem, reg, mappingpc):
     reg = return_address_to_pc(reg, mappingpc)
@@ -326,20 +328,16 @@ def ret(mem, reg, mappingpc):
     return mem, reg
 
 def uret(mem, reg, mappingpc):
-    print( "core.py", "No user mode enabled")
-    exit()
+    end_program_function()
 
 def sret(mem, reg, mappingpc):
-    print( "core.py", "No supervised mode enabled")
-    exit()
+    end_program_function()
 
 def mret(mem, reg, mappingpc):
-    print( "core.py", "No memory mode enabled")
-    exit()
+    end_program_function()
 
 def wfi(mem, reg, mappingpc):
-    print( "core.py", "No interrups")
-    exit()
+    end_program_function()
 
 ## Load a 8-bit value from memory
 def lb(rd, offset, rs1, mem, reg, mappingpc):

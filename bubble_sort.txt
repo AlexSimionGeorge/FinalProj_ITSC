@@ -1,0 +1,65 @@
+.data
+        iterations: .word 0x5
+        address: .word 0x12c
+        length: .word 0xa
+        .code
+        jal ra, read
+        jal ra, sort
+        ecall
+
+        read: addi t0, zero, address
+        addi t1, zero, 0x3
+        sw t1, 0x0(t0)
+
+        addi t0, t0, 0x1
+        addi t1, zero, 0x5
+        sw t1, 0x0(t0)
+
+        addi t0, t0, 0x1
+        addi t1, zero, 0x1
+        sw t1, 0x0(t0)
+
+        addi t0, t0, 0x1
+        addi t1, zero, 0x2
+        sw t1, 0x0(t0)
+
+        addi t0, t0, 0x1
+        addi t1, zero, 0x4
+        sw t1, 0x0(t0)
+
+        addi t1, zero, iterations
+        loop: addi t0, t0, 0x1
+            addi t2, t1, 0x5
+            sw t2, 0x0(t0)
+            addi t1, t1, 0xffffff
+            bne t1, zero, loop
+
+        ret
+
+        sort: addi t6, zero address ; holds address
+            addi t6, t6, length
+            addi t0, zero, address
+    for_1:  sub t5, t0, t6
+            beq t5, zero, end_for_1
+
+            addi t1, t0, 0x1
+    for_2:   sub t5, t1, t6
+            beq t5, zero, end_for_2
+
+            lw t2, 0x0(t0)
+            lw t3, 0x0(t1)
+            blt t2, t3, no_swap
+
+            add t4, zero, t2
+            add t2, zero, t3
+            add t3, zero, t4
+
+            sw t2, 0x0(t0)
+            sw t3, 0x0(t1)
+
+            no_swap: addi t1, t1, 0x1
+            beq zero, zero, for_2
+
+    end_for_2:    addi t0, t0, 0x1
+            beq zero, zero, for_1
+    end_for_1: ret
