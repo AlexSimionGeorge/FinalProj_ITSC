@@ -316,10 +316,14 @@ xor t0, t0, t0
 test3: addi t0, t0, 0x5
 addi t0, t0, 0x19
 addi t0, zero, 0x1
-sub t1, zero, t0
+sub t1, zero, t0 ; t1 = -1, t2 = 0
 addi t2, zero, 0x0
-bltu t1, t0
-
+bltu t1, t2, noworks
+addi s0, s0, 0x7
+noworks: addi s1, s1, 0xC
+bltu t2, t1, works
+addi s3, s3, 0x7
+works: addi s4, s4, 0xC
 
 
 BGE -> tested
@@ -336,9 +340,18 @@ xor t1, t1, t1
 xor t0, t0, t0
 test3: addi t0, t0, 0x5
 addi t1, t1, 0x19
-BGE t1, t0, test1
+;BGE t1, t0, test1
 xor t1, t1, t1
 xor t0, t0, t0
+addi t0, zero, 0x1
+sub t1, zero, t0 ; t1 = -1, t2 = 0
+addi t2, zero, 0x0
+bgeu t1, t2, noworks
+addi s0, s0, 0x7
+noworks: addi s1, s1, 0xC
+bgeu t2, t1, works
+addi s3, s3, 0x7
+works: addi s4, s4, 0xC
 
 
 
@@ -436,7 +449,7 @@ addi t0, zero, 0x45
 addi t1, zero, 0x87
 mul t2, t1, t0
 
-mulh - DOES NOT WORK
+mulh - tested
 
 .data
 .code
@@ -447,7 +460,18 @@ addi t0, zero, 0x245
 lui t3, 0x70000
 or t0, t0, t3
 addi t1, zero, 0x4
-mulh t2, t1, t0       // aici ar trebui sa fie 3
+mulh t2, t1, t0       ; aici ar trebui sa fie 1
+lui t2, 0x00162
+addi t0, zero, 0xA91
+or t0, t0, t2
+addi t4, zero, 0x2D ;45
+mulh t2, t0, t4 ; -1
+lui t2, 0x07789
+addi t0, zero, 0x265
+or t0, t0, t2
+addi t4, zero, 0x199 ;
+mulh t2, t0, t4 ; 11
+
 
 mulhsu - DOES NOT WORK (will once mulh does)
 
@@ -459,6 +483,11 @@ mulhsu t2, t1, t0
 addi t0, zero, 0x45
 addi t1, zero, 0x87
 mulhsu t2, t1, t0
+lui t2, 0x07789
+addi t0, zero, 0x265
+or t0, t0, t2
+addi t4, zero, 0x199 ;
+mulh t2, t0, t4 ; 11
 
 mulhu - DOES NOT WORK (will once mulh does)
 
@@ -492,6 +521,10 @@ divu t2, t1, t0
 addi t0, zero, 0x21
 addi t1, zero, 0x87
 divu t2, t1, t0
+addi t0, zero, 0x1
+sub t0, zero, t0
+addi t1, zero, 0x2
+divu t2, t0, t1
 
 rem - tested
 
@@ -514,6 +547,11 @@ rem t2, t1, t0
 addi t0, zero, 0x45
 addi t1, zero, 0x87
 rem t2, t1, t0
+addi t0, zero, 0x1
+sub t0, zero, t0
+addi t1, zero, 0x2
+remu t2, t0, t1
+
 
 push,pop 
 .data
