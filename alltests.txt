@@ -1,0 +1,747 @@
+lui -tested
+
+.data
+num: .word 0x00005
+.code
+lui t0, 0x00001
+lui t1, 0x00002
+lui t3, 0x10000
+lui t4, num
+
+auipc - tested
+
+.data
+num: .word 0x00005
+.code
+auipc s0, 0x00001
+auipc s1, 0x00002
+auipc s2, 0x10000 
+
+addi -tested
+
+.data
+num: .word 0x00005
+.code
+addi t0, t0, 0x00001
+addi t1, t0, 0x00002
+addi t1, t0, num
+
+slti - tested 
+
+.data 
+num: .word 0x00005
+.code
+addi t0, t0, 0x5
+slti t1, t0, 0x6
+slti t2, t0, 0x4
+addi t0, zero, 0x1
+sub  t5, t5, t0 
+slti t3, t5, 0x0
+addi t0, t0, 0xFFFFFFFF
+slti t4, t0, num
+
+sltiu tested 
+
+.data
+num: .word 0x00006
+.code
+addi t0, t0, 0x5
+sltiu t1, t0, num
+sltiu t3, t0, 0x6
+sltiu t2, t0, 0x4
+addi t0, zero, 0x0
+sltiu t3, t0, 0xFFFFFFFF
+addi t0, t0, 0xFFFFFFFF
+sltiu t4, t0, 0x0
+
+xori - tested
+
+.data
+num: .word 0x0F0
+.code
+addi t0, t0, 0x0A1
+xori t1, t0, num
+xori t2, t0, 0xF
+
+ori - tested
+
+.data
+num: .word 0x5
+.code
+addi t0, t0, 0x34
+ori t1, t0, num
+ori t2, t0, 0x1F
+
+andi - tested
+
+.data
+num: .word 0x5
+.code
+addi t0, t0, 0x34
+andi t1, t0, num
+andi t2, t0, 0x1F
+
+slli - tested
+
+.data
+num: .word 0x2
+.code
+addi t1, t1, 0x1
+slli t2, t1, num
+slli t3, t1, 0x5
+
+srli - tested
+
+.data
+num: .word 0x2
+.code
+addi t1, t1, 0x80
+srli t2, t1, num
+srli t3, t1, 0x5
+
+srai - tested
+
+.data
+num1: .word 0x2
+num2: .word 0x5
+num3: .word 0x6
+num4: .word 0x1
+num5: .word 0x0
+num6: .word 0x8
+
+.code
+addi t1, zero, 0x80
+srai t2, t1, num1
+srai t3, t1, 0x5
+
+addi t1, zero, 0x7F
+srai t2, t1, num2
+srai t3, t1, num3
+
+addi t1, zero, 0x0
+srai t2, t1, num4
+srai t3, t1, 0x5
+
+addi t1, zero, 0x3
+srai t2, t1, num1
+srai t3, t1, num4
+
+addi t1, zero, 0x40
+sub t1, zero, t1
+srai t2, t1, num1
+srai t3, t1, 0x5
+
+addi t1, zero, 0x1
+sub t1, zero, t1
+srai t2, t1, num1
+srai t3, t1, num6
+
+addi t1, zero, 0xFF
+srai t2, t1, num5
+srai t3, t1, 0x0
+
+addi t1, zero, 0x80
+srai t2, t1, num6
+srai t3, t1, 0x8
+
+add - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x9 
+add t3, t1, t0
+add t1, t1, t0
+
+sub -> tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x9 
+sub t3, t1, t0
+sub t4, t0, t1
+
+sll -> tested
+
+.data
+.code
+addi t0, t0, 0x3
+addi t1, t1, 0x8
+sll t2, t1, t0
+
+slt -> tested
+
+.data
+.code
+addi t0, t0, 0x2
+addi t1, t1, 0x5
+slt t2, t0, t1
+slt t3, t1, t0
+sub t4, t1, 0x1
+slt s0, t0, t4
+slt s1, t4, t0
+
+sltu - tested
+
+.data
+.code
+addi t0, t0, 0x2
+addi t1, t1, 0x5
+sltu t2, t0, t1
+sltu t3, t1, t0
+sub t4, t1, 0x1
+sltu s0, t0, t4
+sltu s1, t4, t0
+
+xor - tested
+
+.data
+.code
+addi t0, t0, 0x0A1
+addi t1, t1, 0xF
+xor t2, t0, t1
+
+srl - tested
+
+.data
+.code
+addi t1, t1, 0x80
+addi t0, t0, 0x5
+srl t3, t1, t0
+
+
+
+
+JAL -> nu merge nu pune in registrul destinatie adresa label-ululi
+.data
+.code
+addi t2, t2, 0x2
+addi t3, t2, 0x2
+addi t4, t2, 0x2
+jal t0, test1
+test1: addi t2, t2, 0x2
+addi t3, t2, 0x2
+addi t4, t2, 0x2
+jal t1, test2
+test2: addi t2, t2, 0x2
+addi t3, t2, 0x2
+addi t4, t2, 0x2
+jal t3, test3
+test3: addi t1, t1, 0x77
+
+
+JALR: -> aceeasi problema ca la jal, nu pune in registrul destinatie valoarea label ului
+.data
+.code
+addi t2, t2, 0x2
+addi t3, t2, 0x2
+addi t4, t2, 0x2
+jalr t0, t1, test2
+test1: addi t2, t2, 0x2
+addi t3, t2, 0x2
+addi t4, t2, 0x2
+jalr t0, t1,, test2
+test2: addi t2, t2, 0x2
+addi t3, t2, 0x2
+addi t4, t2, 0x2
+jalr t0, t1, test3
+test3: addi t1, t1, 0x77
+
+
+
+SW -> tested
+.data
+.code
+addi t2, t2, 0x15 ;t2 = 21
+addi t3, t2, 0x15 ;t3 = 42
+sw t3, 0x1(t2)
+addi t2, t2, 0x25 ;t2 = 21 + 37 = 58
+addi t3, t2, 0x25 ;t3 = 58 + 37 = 95
+sw t3, 0x1(t2)
+
+
+
+SH -> tested
+.data
+.code
+addi t2, t2, 2215 ;t2 = 8725
+addi t3, t3, 0x15 ;t3 = 21
+sh t2, 0x1(t3)
+addi t2, t2, 0x666625 ;t2 = 26149
+addi t3, t3, 0x25 ;t3 = 37 + 21 = 58
+sh t2, 0xA(t3)
+
+
+
+SB -> tested
+.data
+.code
+addi t2, t2, FFFF ;
+addi t3, t3, 0x15 ;
+sh t2, 0x1(t3)
+addi t2, t2, AAAA ;
+addi t3, t3, 0x25 ;
+sh t2, 0xA(t3)
+
+
+BGEU -> tested
+.data
+.code
+addi t0, t0, 0x1 ;
+addi t1, t1, 0x2 ;
+bgeu t0, t1, test1
+test1: addi t0, t0, 0x0
+xor t1, t1, t1
+xor t0, t0, t0
+bgeu t0, t1, test3
+xor t1, t1, t1
+xor t0, t0, t0
+test3: addi t0, t0, 0x5
+addi t0, t0, 0x19
+
+
+BLTU -> tested
+.data
+.code
+addi t0, t0, 0x1 ;
+addi t1, t1, 0x2 ;
+BLTU t0, t1, test1
+addi t0, t0, 0x15
+test1: xor t1, t1, t1
+xor t0, t0, t0
+BLTU t0, t1, test3
+xor t1, t1, t1
+xor t0, t0, t0
+test3: addi t0, t0, 0x5
+addi t0, t0, 0x19
+addi t0, zero, 0x1
+sub t1, zero, t0
+addi t2, zero, 0x0
+bltu t1, t0
+
+
+
+BGE -> tested
+.data
+.code
+addi t0, t0, 0x5 ;
+addi t1, t1, 0x2 ;
+BGE t0, t1, test1
+addi t0, t0, 0x15
+test1: xor t1, t1, t1
+xor t0, t0, t0
+BGE t0, t1, test3
+xor t1, t1, t1
+xor t0, t0, t0
+test3: addi t0, t0, 0x5
+addi t1, t1, 0x19
+BGE t1, t0, test1
+xor t1, t1, t1
+xor t0, t0, t0
+
+
+
+BLT -> tested
+.data
+.code
+addi t0, t0, 0x5 ;
+addi t1, t1, 0x2 ;
+BLT t0, t1, test1
+addi t0, t0, 0x15
+test1: xor t1, t1, t1
+xor t0, t0, t0
+BLT t0, t1, test3
+xor t1, t1, t1
+xor t0, t0, t0
+test3: addi t0, t0, 0x5
+addi t1, t1, 0x19
+BLT t0, t1, test1
+xor t1, t1, t1
+xor t0, t0, t0
+
+
+BNE -> tested
+.data
+.code
+addi t0, t0, 0x5 ;
+addi t1, t1, 0x2 ;
+BNE t0, t1, test1
+addi t0, t0, 0x15
+test1: xor t1, t1, t1
+xor t0, t0, t0
+BNE t0, t1, test3
+xor t1, t1, t1
+xor t0, t0, t0
+test3: addi t0, t0, 0x5
+addi t1, t1, 0x19
+BNE t0, t1, test1
+xor t1, t1, t1
+xor t0, t0, t0
+
+
+BEQ -> tested
+.data
+.code
+addi t0, t0, 0x5 ;
+addi t1, t1, 0x2 ;
+BEQ t0, t1, test1
+addi t0, t0, 0x15
+test1: xor t1, t1, t1
+xor t0, t0, t0
+BEQ t0, t1, test3
+addi t0, t0, 0x5 ;
+addi t1, t1, 0x2 ;
+test3: addi t0, t0, 0x5
+addi t1, t1, 0x19
+BEQ t0, t1, test1
+xor t1, t1, t1
+xor t0, t0, t0
+
+
+
+sra - DOES NOT WORK
+
+.data
+.code
+addi t0, t0, 0x80
+addi t1, t1, 0x3
+sra t2, t0, t1
+
+
+or - tested
+
+.data
+.code
+addi t0, t0, 0xC5
+addi t1, t1, 0x33
+or t2, t1, t0
+
+and - tested
+
+.data
+.code
+addi t0, t0, 0xC5
+addi t1, t1, 0x33
+and t2, t1, t0
+
+mul - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+mul t2, t1, t0
+addi t0, zero, 0x45
+addi t1, zero, 0x87
+mul t2, t1, t0
+
+mulh - DOES NOT WORK
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+mulh t2, t1, t0
+addi t0, zero, 0x245
+lui t3, 0x70000
+or t0, t0, t3
+addi t1, zero, 0x4
+mulh t2, t1, t0       // aici ar trebui sa fie 3
+
+mulhsu - DOES NOT WORK (will once mulh does)
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+mulhsu t2, t1, t0
+addi t0, zero, 0x45
+addi t1, zero, 0x87
+mulhsu t2, t1, t0
+
+mulhu - DOES NOT WORK (will once mulh does)
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+mulhu t2, t1, t0
+addi t0, zero, 0x45
+addi t1, zero, 0x87
+mulhu t2, t1, t0
+
+div - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+div t2, t1, t0
+addi t0, zero, 0x21
+addi t1, zero, 0x87
+div t2, t1, t0
+
+divu - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+divu t2, t1, t0
+addi t0, zero, 0x21
+addi t1, zero, 0x87
+divu t2, t1, t0
+
+rem - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+rem t2, t1, t0
+addi t0, zero, 0x45
+addi t1, zero, 0x87
+rem t2, t1, t0
+
+remu - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0x7
+rem t2, t1, t0
+addi t0, zero, 0x45
+addi t1, zero, 0x87
+rem t2, t1, t0
+
+push,pop 
+.data
+.code
+addi t0, t0, 0x5
+push t0
+pop t1
+
+lb - tested
+
+.data
+num: .word 0xF
+.code
+addi t0, t0, 0X003
+lui  t2, 0xFF0
+or t0,t0,t2
+sw t0, num(t1)
+lb t2, num(t1)
+lb t3, 0xF(t1)
+addi t0, zero, 0x0FF
+sw t0, num(t1)
+lb t2, num(t1)
+
+lbu - tested
+
+.data
+num: .word 0xF
+.code
+addi t0, t0, 0X003
+lui  t2, 0xFF0
+or t0,t0,t2
+sw t0, num(t1)
+lbu t2, num(t1)
+lbu t3, 0xF(t1)
+addi t0, zero, 0x0FF
+sw t0, num(t1)
+lbu t2, num(t1)
+
+lh - tested
+
+.data
+num: .word 0xF
+.code
+addi t0, t0, 0X003
+lui  t2, 0xFF0
+or t0,t0,t2
+sw t0, num(t1)
+lh t2, num(t1)
+lh t3, 0xF(t1)
+lui t0, 0x0000F
+addi t3, zero, 0xFFF
+or t0, t0, t3
+sw t0, num(t1)
+lh t2, num(t1)
+
+lhu - tested
+
+.data
+num: .word 0xF
+.code
+addi t0, t0, 0X003
+lui  t2, 0xFF0
+or t0,t0,t2
+sw t0, num(t1)
+lhu t2, num(t1)
+lhu t3, 0xF(t1)
+lui t0, 0x0000F
+addi t3, zero, 0xFFF
+or t0, t0, t3
+sw t0, num(t1)
+lhu t2, num(t1)
+
+
+lw - tested
+
+.data
+num: .word 0xF
+.code
+addi t0, t0, 0X3
+sw t0, num(t1)
+lw t2, num(t1)
+lw t3, 0xF(t1) 
+
+
+ret - tested
+
+.data
+.code
+addi t0, zero, 0x33
+addi s1, s1, 0x1
+addi s0, zero, 0x44
+addi s2, zero, 0x42
+sub s0, s0, s1
+JAL ra, adding10
+addi t0, t0, 0x5
+ecall
+adding10: addi t0,t0, 0xF
+ret
+
+amoswap.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amoswap.w t2, t0, (t3) ; in mem[15](t3) = 5, t0 = A, t2 = 5
+
+amoadd.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amoadd.w t2, t0, (t3) ;t2 = 15, mem[15] = 15, t0 = 5
+
+amoxor.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amoxor.w t2, t0, (t3) ;t2 = 15, mem[15] = 15, t0 = 5
+
+amoand.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amoand.w t2, t0, (t3) ;t2 = 0, mem[15] = 0, t0 = 5
+
+amoor.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amoor.w t2, t0, (t3) ;t2 = 15, mem[15] = 15, t0 = 5
+
+amomin.w
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amomin.w t2, t0, (t3) ;t2 = 5, mem[15] = 5, t0 = 5
+addi t0, zero, 0xA
+addi t1, zero, 0x5
+sw t1, 0x0(t3)
+amomin.w t2, t0, (t3) ;t2 = 5, mem[15] = 5, t0 = A
+addi t4, t4, 0xB
+sub t0, t0, t4
+amomin.w t2, t0, (t3) ;t2 = -1, mem[15] = -1, t0 = -1
+
+
+amomax.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amomax.w t2, t0, (t3) ;t2 = A, mem[15] = A, t0 = 5
+addi t0, zero, 0xA
+addi t1, zero, 0x5
+sw t1, 0x0(t3)
+amomax.w t2, t0, (t3) ;t2 = A, mem[15] = A, t0 = A
+addi t4, t4, 0xB
+sub t0, t0, t4
+amomax.w t2, t0, (t3) ;t2 = 5, mem[15] = 5, t0 = -1
+
+amominu.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amominu.w t2, t0, (t3) ;t2 = 5, mem[15] = 5, t0 = 5
+addi t0, zero, 0xA
+addi t1, zero, 0x5
+sw t1, 0x0(t3)
+amominu.w t2, t0, (t3) ;t2 = 5, mem[15] = 5, t0 = A
+addi t4, t4, 0xB
+sub t0, t0, t4
+amominu.w t2, t0, (t3) ;t2 = 5, mem[15] = 5, t0 = -1
+
+amomaxu.w - tested
+
+.data
+.code
+addi t0, t0, 0x5
+addi t1, t1, 0xA
+addi t3, t3, 0x15
+sw t1, 0x0(t3)
+amomaxu.w t2, t0, (t3) ;t2 = A, mem[15] = A, t0 = 5
+addi t0, zero, 0xA
+addi t1, zero, 0x5
+sw t1, 0x0(t3)
+amomaxu.w t2, t0, (t3) ;t2 = A, mem[15] = A, t0 = A
+addi t4, t4, 0xB
+sub t0, t0, t4
+amomaxu.w t2, t0, (t3) ;t2 = -1, mem[15] = -1, t0 = -1
+
+ecall - tested
+ebreak - tested
+uret - tested
+sret - tested
+mret - tested
+wfi - tested
+______________________________________________________________
+____________UNRUN tests_______________________________________
+______________________________________________________________
+
+
+
+
