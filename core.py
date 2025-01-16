@@ -194,20 +194,19 @@ def srli(rd, rs1, shamt, mem, reg, mappingpc):
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
 
-## Shift right logical ##
+## Shift right logical ##c
 def srl(rd, rs1, rs2, mem, reg, mappingpc):
     hardwired_zero(rd)
-    reg[rd] = (reg[rs1] >> reg[rs2]) & 0xFFFFFFFF
+    reg[rd] = (reg[rs1] >> reg[rs2]) & 0x7FFFFFFF
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
 
 ## Shift right arithmetic ##
 def sra(rd, rs1, rs2, mem, reg, mappingpc):
+    print(rd, rs1, rs2)
     hardwired_zero(rd)
-    reg[rd] = reg[rs1] >> reg[rs2]
-    if reg[rs1] < 0:  # Sign-extend the shift
-        reg[rd] |= (0xFFFFFFFF << (32 - reg[rs2]))
+    reg[rd] = reg[rs1] >> reg[rs2] if reg[rs1] >= 0 else (reg[rs1] >> reg[rs2]) | (-(1 << (32 - reg[rs2])))
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
     return mem, reg
