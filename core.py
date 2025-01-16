@@ -603,7 +603,7 @@ def amoand_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
-    reg[rd] = reg[rd] and reg[rs2]
+    reg[rd] = reg[rd] & reg[rs2]
     mem[lines, columns] = reg[rd]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
@@ -614,7 +614,7 @@ def amoor_w(rd, rs2, rs1, mem, reg, mappingpc):
     hardwired_zero(rd)
     lines, columns = cell2linescolumns(rs1)
     reg[rd] = mem[lines, columns]
-    reg[rd] = reg[rd] or reg[rs2]
+    reg[rd] = reg[rd] | reg[rs2]
     mem[lines, columns] = reg[rd]
     reg = increment_pc(reg, mappingpc)
     print( "core.py", f"{rd} = {reg[rd]}")
