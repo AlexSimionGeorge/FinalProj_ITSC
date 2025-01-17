@@ -296,7 +296,7 @@ functions = {
     "csrrsi": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
     "csrrci": lambda labels, params: (print("well .. nu-i :)"), 0)[1],
 
-    "amoswap.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00001",_2625control_bits="00", _1412function="010", _62opcode="01011"),
+    "amoswap.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00001",_2625control_bits="00", _1412function="010", _62opcode="01011"), #tested
     "amoadd.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00000",_2625control_bits="00", _1412function="010", _62opcode="01011"),
     "amoxor.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="00100",_2625control_bits="00", _1412function="010", _62opcode="01011"),
     "amoand.w": lambda labels, params:_3127opcode_2625control_bits_2420source_register_1915source_register_1412function_117destination_register_62opcode_10alignmentV2(params, _3127opcode="01100",_2625control_bits="00", _1412function="010", _62opcode="01011"),
