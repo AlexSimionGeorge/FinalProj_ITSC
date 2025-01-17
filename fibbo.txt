@@ -17,12 +17,13 @@
     push t2
     push t1
 
-    jal a5, fib_recursiv
-
+    jal ra, fib_recursiv
+    ecall
 fib_recursiv: pop a0
     pop a1
     add a2, a1, a0
     pop a3
+    push ra
     beq a3, zero, return
     sub a3, a3, s2
     sw a2, 0x0(a6)
@@ -30,5 +31,7 @@ fib_recursiv: pop a0
     push a3
     push a0
     push a2
-    jal a4, fib_recursiv
-return: ret
+    jal ra, fib_recursiv
+
+return: pop ra
+        ret
