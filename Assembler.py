@@ -274,7 +274,7 @@ functions = {
     "lbu" : lambda labels, params: _3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(labels, params, _1412function="100", _62opcode="00000"),
     "lhu" : lambda labels, params: _3120offset_1915source_register_1412function_117destination_register_62opcode_10alignment(labels, params, _1412function="101", _62opcode="00000"),
 
-    "sb": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="000", _62opcode="01000"),
+    "sb": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="000", _62opcode="01000"), #tested
     "sh": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="001", _62opcode="01000"),
     "sw": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="010", _62opcode="01000"),
 
