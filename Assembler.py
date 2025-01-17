@@ -276,7 +276,7 @@ functions = {
 
     "sb": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="000", _62opcode="01000"), #tested
     "sh": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="001", _62opcode="01000"), #tested
-    "sw": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="010", _62opcode="01000"),
+    "sw": lambda labels, params: _3125offset_2420source_register_1915source_register_1412function_117offset_62opcode_10alignment(labels, params, _1412function="010", _62opcode="01000"), #tested
 
     "jal": lambda labels, params: _jal(labels, params),
     "jalr":lambda labels, params: _jalr(labels, params),
