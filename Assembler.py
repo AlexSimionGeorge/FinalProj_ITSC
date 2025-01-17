@@ -228,7 +228,7 @@ functions = {
     "auipc": lambda labels, params: _3112immediate_117destination_register_62opcode_10alignment(params, "00101"), # auipc x6, 0x12345
 
     "addi": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "000", "00100"), # addi rd, rs1, imm -> addi x3, x2, 0x10
-    "slti": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "010", "00100"),#slti rd, rs1, imm -> slti x3, x2, 0x10
+    "slti": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "010", "00100"),#slti rd, rs1, imm -> slti x3, x2, 0x10; tested
     "sltiu": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "011", "00100"),
     "xori": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "100", "00100"),
     "ori": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "110", "00100"),
