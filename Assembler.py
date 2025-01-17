@@ -234,7 +234,7 @@ functions = {
     "ori": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "110", "00100"),
     "andi": lambda labels, params:_3120immediate_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "111", "00100"),
 
-    "slli": lambda labels, params:_3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "001", "00100", "00000", "00"), # slli rd, rs1, shamt -> slli x2, x1, 0x2
+    "slli": lambda labels, params:_3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "001", "00100", "00000", "00"), # slli rd, rs1, shamt -> slli x2, x1, 0x2, tested
     "srli": lambda labels, params:_3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "101", "00100", "00000", "00"),
     "srai": lambda labels, params:_3127opcode_2625control_bits_2420shamt_1915source_register_1412function_117destination_register_62opcode_10alignment(params, "101", "00100", "01000", "00"),
 
